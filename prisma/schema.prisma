@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id Int @id @default(autoincrement())
+  code Int @unique
+  name String
+  email String 
+  password String
+  organizers Organizer[]
+}
+
+model Organizer {
+  id Int @id @default(autoincrement())
+  name String
+  email String
+  password String
+  org Organization? @relation(fields: [orgId], references: [id])
+  orgId Int?
+  meets Meet[]
+  attendees Attendee[]
+}
+
+model Meet {
+  id Int @id @default(autoincrement())
+  name String
+  reoccurance Boolean @default(true)
+  startDict String?
+  endDict String?
+  scope String?
+  manual Boolean @default(false)
+  qr Boolean @default(false)
+  image String?
+  imageId String?
+  organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  organizerId Int
+  active Boolean @default(false)
+  events Event[]
+  attendees Attendee[]
+  reoccurances Reoccurance[]
+}
+
+model Reoccurance {
+  id Int @id @default(autoincrement())
+  date Int
+  meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
+  meetId Int
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+  name String
+  startTime Int
+  endTime Int
+  manual Boolean @default(false)
+  tag String?
+  qr Boolean @default(false)
+  meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
+  meetId Int
+  options Option[]
+  attendances Attendance[]
+}
+
+model Attendee {
+  id Int @id @default(autoincrement())
+  name String
+  specificId String
+  organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  organizerId Int
+  meets Meet[]
+  attendances Attendance[]
+}
+
+model Option {
+  id Int @id @default(autoincrement())
+  question String
+  order Int
+  type String
+  selections Selection[]
+  answers Answer[]
+  multiple Boolean @default(false)
+  required Boolean @default(true)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId Int
+}
+
+model Selection {
+  id Int @id @default(autoincrement())
+  value String
+  option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  optionId Int
+}
+
+model Attendance {
+  id Int @id @default(autoincrement())
+  attendee Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+  attendeeId Int
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId Int
+  submitted Int
+  hours Float
+  answers Answer[]
+}
+
+model Answer {
+  id Int @id @default(autoincrement())
+  attendance Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  attendanceId Int
+  response String
+  option Option @relation(fields: [optionId], references: [id])
+  optionId Int
+}
+
+
+
+
+
+

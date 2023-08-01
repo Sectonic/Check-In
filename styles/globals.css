@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+}
+
+.eventMenuScroll {
+    scrollbar-width: thin;
+    scrollbar-color: white #047aff;
+    padding: 5px
+}
+  
+.eventMenuScroll::-webkit-scrollbar {
+    width: 3px;
+}
+  
+.eventMenuScroll::-webkit-scrollbar-track {
+    background: white;
+}
+  
+.eventMenuScroll::-webkit-scrollbar-thumb {
+    background-color: #047aff;
+    border-radius: 10px;
+}
+
+.deselected:has(.deselector:active) {
+    pointer-events: none;
+}
