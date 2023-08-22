@@ -1,8 +1,13 @@
 import { useRef } from 'react';
 import { QrReader } from "react-qr-reader";
+import db from '@/lib/prisma';
 
-export const getServerSideProps = ({ params }) => {
-  return { props: { meet: params.meet_slug }}
+export const getServerSideProps = async ({ params }) => {
+  const currentMeet = await db.meet.findUnique({ where: { id: Number(params.meet_slug) } });
+  if (!currentMeet.qr) {
+    return { redirect: { destination: '/dashboard/' + params.meet_slug, permanent: true } };
+  }
+  return { props: { meet: params.meet_slug }};
 }
 
 export default function QR({ meet }) {

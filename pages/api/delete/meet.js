@@ -9,14 +9,14 @@ export default ApiRoute(
         res.status(401).send({ error: 'A Organizer account is needed to access'});
         return;
     }
-    const { id } = req.query;
+    const { id } = req.body;
     const deletedMeet = await db.meet.delete({
         where: {
             id: Number(id)
         }
     });
-    if (deletedMeet.fileId) {
-      deleteFile(deletedMeet.fileId);
+    if (deletedMeet.imageId) {
+      deleteFile(deletedMeet.imageId);
     }
     req.session.user.meets.splice(req.session.user.meets.indexOf(id), 1);
     await req.session.save();

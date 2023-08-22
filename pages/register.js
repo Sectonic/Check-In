@@ -9,8 +9,8 @@ export default function Register({ fetchUser, fetchMeets }) {
     const [error, setError] = useState('');
 
     const changeType = () => {
-        org.current.className = `flex justify-center px-6 py-3 btn ${type ? '' : 'btn-outline'} btn-primary`;
-        organizer.current.className = `flex justify-center px-6 py-3 btn ${type ? 'btn-outline' : ''} btn-primary`;
+        org.current.className = `flex justify-center px-6 py-3 btn ${type ? '' : 'btn-outline'} btn-primary max-sm:flex-grow`;
+        organizer.current.className = `flex justify-center px-6 py-3 btn ${type ? 'btn-outline' : ''} btn-primary max-sm:flex-grow`;
         setType(!type)
     }
 
@@ -69,7 +69,7 @@ export default function Register({ fetchUser, fetchMeets }) {
                                     </div>
                                 </div>
                                 <div className="flex-none">
-                                    <button className="btn btn-sm btn-square btn-outline" onClick={removeBtn}>
+                                    <button className="btn btn-sm btn-square btn-outline" onClick={removeBtn} type="button">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
@@ -83,8 +83,8 @@ export default function Register({ fetchUser, fetchMeets }) {
                             </p>
                             <div className="mt-6">
                                 <h1 className="text-neutral">Select type of account</h1>
-                                <div className="mt-3 flex max-md:justify-center items-center gap-5">
-                                    <button className="flex justify-center px-6 py-3 btn btn-primary" onClick={changeType} ref={organizer}>
+                                <div className="mt-3 flex max-sm:flex-wrap max-md:justify-center items-center gap-5">
+                                    <button className="flex justify-center px-6 py-3 btn btn-primary max-sm:flex-grow" onClick={changeType} ref={organizer} type="button">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
@@ -92,7 +92,7 @@ export default function Register({ fetchUser, fetchMeets }) {
                                             Organizer
                                         </span>
                                     </button>
-                                    <button className="flex justify-center px-6 py-3 btn btn-outline btn-primary" onClick={changeType} ref={org}>
+                                    <button className="flex justify-center px-6 py-3 btn btn-outline btn-primary max-sm:flex-grow" onClick={changeType} ref={org} type="button">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
@@ -125,7 +125,7 @@ export default function Register({ fetchUser, fetchMeets }) {
                                     <label className="label">
                                         <span className="label-text">Retry Password</span>
                                     </label>
-                                    <input name="verify" type="text" placeholder="Verify Password" className="input input-bordered w-full max-w-xs" />
+                                    <input name="verify" type="password" placeholder="Verify Password" className="input input-bordered w-full max-w-xs" />
                                 </div>
                                 <div className="form-control w-full max-w-xs mt-5 mx-auto" mx-auto>
                                     <button

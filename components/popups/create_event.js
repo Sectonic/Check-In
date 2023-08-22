@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Date, DatePicker, TypeButton, TypePicker, TimePicker } from "../meet_selections";
+import { useState } from "react";
+import { TimePicker } from "../meet_selections";
 import { useRouter } from "next/router";
 import * as dayjs from 'dayjs';
 import Datepicker from "react-tailwindcss-datepicker"; 
@@ -36,8 +36,9 @@ export default function CreateEvent({ setCreate, fetchMeets, currentMeet }) {
                 return dict.hour + 12;
             }
             if (dict.time === 'AM' && dict.hour === 12) {
-                return 0
+                return 0;
             }
+            return dict.hour;
         }
 
         var startDuration = dayjs.duration({
@@ -56,16 +57,16 @@ export default function CreateEvent({ setCreate, fetchMeets, currentMeet }) {
             return;
         }
 
-        const startUnix = dayjs(value.startDate).set('hour', checkDurationHours(startTime)).set('minute', startTime.minute).unix();
-        const endUnix = dayjs(value.startDate).set('hour', checkDurationHours(endTime)).set('minute', endTime.minute).unix();
+        const startUnix = dayjs(value.startDate).set('hour', checkDurationHours(startTime)).set('minute', startTime.minute).set('second', 0);
+        const endUnix = dayjs(value.startDate).set('hour', checkDurationHours(endTime)).set('minute', endTime.minute).set('second', 0);
 
         const data = {
             name,
-            startTime: startUnix,
-            endTime: endUnix,
+            startTime: startUnix.unix(),
+            endTime: endUnix.unix(),
             manual: currentMeet.manual,
             qr: currentMeet.qr,
-            meetId: currentMeet.id
+            meetId: currentMeet.id,
         };
 
         const options = {
@@ -74,7 +75,7 @@ export default function CreateEvent({ setCreate, fetchMeets, currentMeet }) {
             body: JSON.stringify(data)
         }
 
-        const response = await fetch('/api/post/meet', options);
+        const response = await fetch('/api/post/event', options);
         const responseData = await response.json();
         if (response.ok) {
             setCreate(false);
@@ -107,7 +108,7 @@ export default function CreateEvent({ setCreate, fetchMeets, currentMeet }) {
                 <Datepicker 
                     inputClassName="mt-1 relative transition-all border border-2 outline-0 ring-0 duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                     value={value} 
-                    onChange={(e) => {setValue(e); console.log(e)}} 
+                    onChange={(e) => setValue(e)} 
                     readOnly={true} 
                     asSingle={true} 
                     useRange={false}

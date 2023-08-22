@@ -12,6 +12,7 @@ export default function Attendance({ currentMeet }) {
   const router = useRouter();
   const [searchValue, setSearch] = useState('');
   const [events, setEvents] = useState([]);
+  const [futureEvents, setFutureEvents] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [notAttended, setNotAttended] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
@@ -20,7 +21,7 @@ export default function Attendance({ currentMeet }) {
   const [includeAbsent, setIncludeAbsent] = useState(true);
   const [value, setValue] = useState({ 
     startDate: dayjs().subtract(30, 'day').format('YYYY-MM-DD'), 
-    endDate:  dayjs().format('YYYY-MM-DD')
+    endDate:  dayjs().add(1, 'day').format('YYYY-MM-DD')
   });
   const roomId = 'meet-' + currentMeet.id;
   const dropdown = useRef(null);
@@ -37,13 +38,21 @@ export default function Attendance({ currentMeet }) {
   const eventHandler = (eventId) => {
     const { meet_slug, ...searchParams } = router.query;
     const params = new URLSearchParams(searchParams);
-    params.set('eventId', eventId === currentEvent.id ? '' : eventId);
+    params.set('eventId', eventId === currentEvent?.id ? '' : eventId);
     router.push('/dashboard/' + currentMeet.id + '/attendance?' + params, undefined, { shallow: true });
   }
 
   const getAttendanceData = async () => {
-    const attendanceReq = await fetch('/api/get/attendance?' + new  URLSearchParams({ search: router.query.search || '', eventId: router.query.eventId, meetId: currentMeet.id, startTime: dayjs(value.startDate).unix(), endTime:  dayjs(value.endDate).unix() }));
+    const attendanceDict = { 
+      search: router.query.search || '', 
+      eventId: router.query.eventId, 
+      meetId: currentMeet.id, 
+      startTime: dayjs(value.startDate).unix(), 
+      endTime:  dayjs(value.endDate).unix() 
+    }
+    const attendanceReq = await fetch('/api/get/attendance?' + new  URLSearchParams(attendanceDict));
     const attendanceData = await attendanceReq.json();
+    setFutureEvents(attendanceData.futureEvents);
     setEvents(attendanceData.events);
     setAttendance(attendanceData.attendance);
     setNotAttended(attendanceData.notAttended);
@@ -78,13 +87,15 @@ export default function Attendance({ currentMeet }) {
 
   useEffect(() => {
     const params = new URLSearchParams({ search: '', eventId: ''})
-    router.push('/dashboard/' + currentMeet.id + '/attendance?' + params), undefined, { shallow: true };
+    if (!router.query.eventId) {
+      router.push('/dashboard/' + currentMeet.id + '/attendance?' + params), undefined, { shallow: true };
+    }
     socketInitializer();
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     getAttendanceData();
@@ -99,12 +110,12 @@ export default function Attendance({ currentMeet }) {
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}
         </div>
-        <div className="p-2 my-3 flex gap-3 bg-base-200 rounded-lg">
+        <div className="p-2 mt-3 mb-2 flex max-sm:justify-between gap-3 bg-base-200 rounded-lg">
           <div className="dropdown min-w-max" ref={dropdown}>
-            {currentEvent ? (
+            {currentEvent || futureEvents.length !== 0 ? (
               <>
                 <label tabIndex={0} className="btn btn-ghost" onClick={() => {dropdown.current.className = "dropdown dropdown-open min-w-max"}}>
-                  {currentEvent.name}
+                  {currentEvent?.name || 'No Attendance'}
                   <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
                 </label>
                 <OutsideClickHandler onOutsideClick={outsideHandler}>
@@ -114,6 +125,7 @@ export default function Attendance({ currentMeet }) {
                       setEvents={setEvents} 
                       currentEvent={currentEvent} 
                       events={events} 
+                      futureEvents={futureEvents}
                       eventHandler={eventHandler} 
                       value={value}
                       setValue={setValue}
@@ -125,7 +137,7 @@ export default function Attendance({ currentMeet }) {
               <div className="btn btn-ghost">No Attendance</div>
             )}
           </div>
-          <div className="form-control w-full">
+          <div className="max-sm:hidden form-control w-full">
             <form className="input-group" onSubmit={searchHandler}>
               <input name="search" type="text" placeholder="Search Name/ID" className="input input-bordered w-full" defaultValue={searchValue} />
               <button className="btn btn-square btn-primary" type="submit">
@@ -145,6 +157,21 @@ export default function Attendance({ currentMeet }) {
             </ul>
           </div>
         </div>
+        <div className="sm:hidden form-control w-full mb-3 mt-1">
+          <form className="input-group" onSubmit={searchHandler}>
+            <input name="search" type="text" placeholder="Search Name/ID" className="input input-bordered w-full" defaultValue={searchValue} />
+            <button className="btn btn-square btn-primary" type="submit">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </button>
+          </form>
+        </div>
+        { currentEvent && !currentMeet.reoccurance && (
+          <div className="mb-2 ml-2">
+            <div className="inline font-semibold">{dayjs.unix(currentEvent.startTime).format('YYYY-MM-DD')}: </div>
+            <div className="inline badge badge-ghost ml-1 font-semibold">{dayjs.unix(currentEvent.startTime).format('hh:mm A')} - {dayjs.unix(currentEvent.endTime).format('hh:mm A')}</div>
+          </div>
+        ) }
+
         <div className="overflow-x-auto">
           <table className="table w-full rounded-none">
             <thead>

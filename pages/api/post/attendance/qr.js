@@ -70,8 +70,8 @@ export default ApiRoute(async function (req, res) {
       return;
     }
 
-    const submitted = dayjs.unix(inTimeEvent.startTime).diff(dayjs(), 'minute');
-    const hours = dayjs.unix(inTimeEvent.startTime).diff(dayjs.unix(inTimeEvent.endTime), 'hour');
+    const submitted = dayjs().diff(dayjs.unix(inTimeEvent.startTime), 'minute');
+    const hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'hour');
 
     await db.attendance.create({
       data: {

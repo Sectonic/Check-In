@@ -58,7 +58,7 @@ export default ApiRoute(
             var checkedNewId = false;
             var newId;
             while (!checkedNewId) {
-                newId = randomString(16);
+                newId = randomString(10);
                 if (!allSpecificIds.includes(newId)) {
                     checkedNewId = true;
                 }

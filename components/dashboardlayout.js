@@ -14,7 +14,7 @@ export function DashboardLayout({ page, meets, fetchMeets, currentMeet, children
         <>
             { create && <CreateMeet setCreate={setCreate} fetchMeets={fetchMeets} />}
             { settings && <MeetSettings setSettings={setSettings} fetchMeets={fetchMeets} meet={currentMeet} />}
-            <div className={router.query.meet_slug ? 'ml-[396px]' : 'ml-[96px]'}>
+            <div className={`max-sm:ml-0 ${router.query.meet_slug ? 'ml-[396px]' : 'ml-[96px]'}`}>
                 {children_arr[0]}
                 <SideNav page={page} router={router} setCreate={setCreate} setSettings={setSettings} meets={meets} currentMeetInfo={currentMeet} />
                 {children_arr[1]}

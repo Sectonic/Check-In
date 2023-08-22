@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     let monthFromLast;
     if (events.length === 0) {
       const lastEvent = await db.event.findFirst({
-        where: { meet: { id: meetId } },
+        where: { meet: { id: meetId }, startTime: { lt: startTime } },
         orderBy: { id: 'desc' },
       });
       if (lastEvent) {

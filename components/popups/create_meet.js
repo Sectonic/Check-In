@@ -12,7 +12,7 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
     const [name, setName] = useState('');;
     const [imageB64, setImageB64] = useState(null);
     const [scope, setScope] = useState('');
-    const [type, setType] = useState('Form');
+    const [type, setType] = useState('QR Code');
     const [startTime, setStartTime] = useState({hour: '--', minute: '--', time: '--'});
     const [endTime, setEndTime] = useState({hour: '--', minute: '--', time: '--'});
     const [reoccuring, setReoccuring] = useState(false);
@@ -46,6 +46,7 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
             if (dict.time === 'AM' && dict.hour === 12) {
                 return 0
             }
+            return dict.hour;
         }
 
         var startDuration = dayjs.duration({
@@ -204,7 +205,7 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                 )}
                 <div className="ml-1 mt-2 label-text">Attendance Type</div>
                 <TypePicker type={type} setType={setType} reoccuringHandler={ReoccuringHandler}>
-                    <TypeButton type='Form' desc='The standard method. Collect attendance data through a form of questions. You can customly create the form. A pincode is required as security.' />
+                    {/* <TypeButton type='Form' desc='The standard method. Collect attendance data through a form of questions. You can customly create the form. A pincode is required as security.' /> */}
                     <TypeButton type='QR Code' desc='Collect attendance through scanning QR codes. Each attendee has a unique QR code which is scanned. No form or pincode is provided.' />
                     <TypeButton type='Manual' desc='The old-school method. Manually input attendance for each attendee. Customly add information when needed. CANNOT be reoccuring.' />
                 </TypePicker>

@@ -16,9 +16,16 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
     }
     
     return (
-        <div className="fixed top-0 left-0 h-full flex">
-            <ul className="menu gap-1 bg-base-100 p-4 border-r">
-                <li className="rounded-full">
+        <div className="sm:fixed top-0 left-0 h-full sm:flex">
+            <Link href="/dashboard/" className={`${page === "dashboard" ? "max-sm:hidden" : ""} sm:hidden mx-6 my-1 btn btn-ghost flex justify-start items-center gap-2`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Dashboard
+            </Link>
+            <div className={`${page === "dashboard" ? "max-sm:hidden" : ""} sm:hidden ml-6 text-2xl font-semibold`}>
+                Meets
+            </div>
+            <ul className={`${page === "dashboard" ? "max-sm:hidden" : ""} max-sm:flex max-sm:w-full max-sm:overflow-x-auto items-center justify-start sm:menu max-sm:menu-horizontal gap-1 bg-base-100 max-sm:py-2 max-sm:px-6 sm:p-4 sm:border-r`}>
+                <li className="max-sm:hidden rounded-full">
                     <Link href="/dashboard/" className='flex justify-center'>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                     </Link>
@@ -29,7 +36,7 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
                         <Link href={`/dashboard/${meet.id}/`} key={i}>
                             <li className="rounded-xl">
                                 <div className="tooltip tooltip-right p-2" data-tip={meet.name}>
-                                    {meet.image ? <img className="mask mask-circle w-12 h-12 object-cover" src={meet.image} /> : (
+                                    {meet.image ? <div className='w-11 h-11 sm:w-12 sm:h-12'><img className="mask mask-circle w-full h-full object-cover" src={meet.image} /></div> : (
                                         <div className="avatar placeholder">
                                             <div className="bg-base-200 text-base-content rounded-full w-12">
                                                 <span className="text-2xl">{meet.name.substring(0,1).toUpperCase()}{meet.name.substring(1,2)}</span>
@@ -41,9 +48,9 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
                         </Link>
                     )
                 })}
-                <li className="rounded-xl group" onClick={() => setCreate(true)}>
+                <li className="rounded-xl group cursor-pointer" onClick={() => setCreate(true)}>
                     <div className="avatar placeholder p-2">
-                        <div className="w-12 h-12 rounded-full border-2 group-active:border-white border-base-content border-dashed">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 group-active:border-white border-base-content border-dashed">
                         <svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" className='h-[25px] w-[25px] fill-current' version="1.1" id="Capa_1" viewBox="0 0 48.467 48.467" space="preserve">
                             <g><g><path d="M0.001,24.233c0,3.584,2.916,6.5,6.5,6.5h11.234v11.234c0,3.584,2.916,6.5,6.5,6.5    s6.5-2.916,6.5-6.5V30.733h11.232c3.584,0,6.5-2.916,6.5-6.5s-2.916-6.5-6.5-6.5H30.736V6.5c0-3.584-2.916-6.5-6.5-6.5    s-6.5,2.916-6.5,6.5v11.233H6.501C2.917,17.733,0.001,20.649,0.001,24.233z M18.236,20.733c1.379,0,2.5-1.122,2.5-2.5V6.5    c0-1.93,1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5v11.733c0,1.378,1.121,2.5,2.5,2.5h11.732c1.93,0,3.5,1.57,3.5,3.5s-1.57,3.5-3.5,3.5    H30.236c-1.379,0-2.5,1.122-2.5,2.5v11.734c0,1.93-1.57,3.5-3.5,3.5s-3.5-1.57-3.5-3.5V30.233c0-1.378-1.121-2.5-2.5-2.5H6.501    c-1.93,0-3.5-1.57-3.5-3.5s1.57-3.5,3.5-3.5H18.236z"/></g></g></svg>
                         </div>
@@ -51,7 +58,7 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
                 </li>
             </ul>
             {router.query.meet_slug && (
-                <div className="border-r w-[285px]">
+                <div className="max-sm:px-5 sm:border-r w-full sm:w-[285px]">
                     <div className="p-5 flex justify-between gap-4 items-center border-b">
                         { currentMeet ? (
                             <>  

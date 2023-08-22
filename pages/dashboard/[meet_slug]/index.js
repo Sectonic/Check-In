@@ -12,7 +12,7 @@ export default function Overview({ currentMeet }) {
   const [piePoints, setPiePoints] = useState([]);
   const [value, setValue] = useState({ 
     startDate: dayjs().subtract(30, 'day').format('YYYY-MM-DD'), 
-    endDate:  dayjs().format('YYYY-MM-DD')
+    endDate:  dayjs().add(1, 'day').format('YYYY-MM-DD')
   });
 
   const getData = async (startTime, endTime) => {
@@ -53,7 +53,7 @@ export default function Overview({ currentMeet }) {
       </div>
       <hr className="my-3"/>
       <AttendanceRates data={graphPoints} />
-      <div className='flex justify-center gap-2 p-2'>
+      <div className='flex max-xl:flex-col justify-center gap-2 p-2'>
         <AttendanceSubmitted data={minutePoints} />
         <OverallAttendance data={piePoints} />
       </div>

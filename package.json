@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.2.0",
-    "@prisma/client": "^4.13.0",
+    "@prisma/client": "^5.1.1",
     "@tailwindcss/typography": "^0.5.9",
     "animate.css": "^4.1.1",
     "autoprefixer": "10.4.14",

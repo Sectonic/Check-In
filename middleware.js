@@ -12,7 +12,8 @@ export async function middleware(req) {
         if (!user) {
             return NextResponse.redirect(new URL('/register', req.url));
         } 
-        // if (req.nextUrl.query.meet_slug && !user.meets.includes(req.nextUrl.query.meet_slug)) {
+        // const meet_slug = Number(req.nextUrl.pathname.split('/')[2]);
+        // if (meet_slug && !user.meets.includes(meet_slug)) {
         //     return NextResponse.redirect(new URL('/dashboard', req.url));
         // }
     }

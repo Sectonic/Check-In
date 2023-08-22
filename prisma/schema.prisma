@@ -6,8 +6,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Organization {
@@ -28,6 +30,7 @@ model Organizer {
   orgId Int?
   meets Meet[]
   attendees Attendee[]
+  @@index([orgId])
 }
 
 model Meet {
@@ -47,6 +50,7 @@ model Meet {
   events Event[]
   attendees Attendee[]
   reoccurances Reoccurance[]
+  @@index([organizerId])
 }
 
 model Reoccurance {
@@ -54,6 +58,7 @@ model Reoccurance {
   date Int
   meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
   meetId Int
+  @@index([meetId])
 }
 
 model Event {
@@ -66,8 +71,9 @@ model Event {
   qr Boolean @default(false)
   meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
   meetId Int
-  options Option[]
+  // options Option[]
   attendances Attendance[]
+  @@index([meetId])
 }
 
 model Attendee {
@@ -78,26 +84,7 @@ model Attendee {
   organizerId Int
   meets Meet[]
   attendances Attendance[]
-}
-
-model Option {
-  id Int @id @default(autoincrement())
-  question String
-  order Int
-  type String
-  selections Selection[]
-  answers Answer[]
-  multiple Boolean @default(false)
-  required Boolean @default(true)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId Int
-}
-
-model Selection {
-  id Int @id @default(autoincrement())
-  value String
-  option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  optionId Int
+  @@index([organizerId])
 }
 
 model Attendance {
@@ -108,17 +95,39 @@ model Attendance {
   eventId Int
   submitted Int
   hours Float
-  answers Answer[]
+  // answers Answer[]
+  @@index([attendeeId])
+  @@index([eventId])
 }
 
-model Answer {
-  id Int @id @default(autoincrement())
-  attendance Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
-  attendanceId Int
-  response String
-  option Option @relation(fields: [optionId], references: [id])
-  optionId Int
-}
+// model Option {
+//   id Int @id @default(autoincrement())
+//   question String
+//   order Int
+//   type String
+//   selections Selection[]
+//   answers Answer[]
+//   multiple Boolean @default(false)
+//   required Boolean @default(true)
+//   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+//   eventId Int
+// }
+
+// model Selection {
+//   id Int @id @default(autoincrement())
+//   value String
+//   option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+//   optionId Int
+// }
+
+// model Answer {
+//   id Int @id @default(autoincrement())
+//   attendance Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+//   attendanceId Int
+//   response String
+//   option Option @relation(fields: [optionId], references: [id])
+//   optionId Int
+// }
 
 
 

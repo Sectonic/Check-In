@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs';
 import Datepicker from "react-tailwindcss-datepicker"; 
 
-const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMeet, value, setValue }) => {
+const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMeet, value, setValue, futureEvents }) => {
 
     const handleValueChange = async (newValue) => {
         if (newValue.startDate) {
@@ -28,10 +28,14 @@ const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMee
             /> 
             <div className='eventMenuScroll max-h-52 overflow-y-scroll w-full flex flex-col gap-2'>
                 {events.map(event => (
-                    <li><a className={`text-sm ${event.id === currentEvent.id ? 'bg-primary text-white' : ''}`} onClick={() => eventHandler(event.id)}>{event.name}</a></li>
+                    <li><a className={`text-sm ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`} onClick={() => eventHandler(event.id)}>{event.name}</a></li>
+                ))}
+                { events.length === 0 && <div className='text-sm font-thin text-center' >No events between dates</div>}
+                { futureEvents.length > 0 && <div className='font-semibold text-sm px-4 mt-2 -mb-1'>Future Events</div>}
+                {futureEvents.map(event => (
+                    <li><a className={`text-sm ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`} onClick={() => eventHandler(event.id)}>{event.name}</a></li>
                 ))}
             </div>
-            {events.length === 0 && <div className='text-sm font-thin text-center' >No events between dates</div>}
         </>
     );
 }

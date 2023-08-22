@@ -98,6 +98,16 @@ export default function MeetSettings({ setSettings, meet }) {
         }
     }
 
+    const deleteMeet = async () => {
+        await fetch('/api/delete/meet', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: meet.id })
+        });
+        setSettings(false);
+        window.location.href = '/dashboard';
+    }
+
     const timeDictParser = (timeDict) => {
         var minutes = String(timeDict.minute);
         if (String(timeDict.minute).length < 2) {
@@ -209,7 +219,7 @@ export default function MeetSettings({ setSettings, meet }) {
                 )}
                 <div className="modal-action">
                     <button className="btn btn-success" type="submit">Save</button>
-                    <button className="btn btn-error" type="submit">Delete</button>
+                    <button className="btn btn-error" type="button" onClick={deleteMeet}>Delete</button>
                     <label className="btn btn-ghost" onClick={() => setSettings(false)}>Dismiss</label>
                 </div>
             </form>

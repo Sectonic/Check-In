@@ -236,8 +236,8 @@ export default function Dashboard({ meets, attendees, userId }) {
                         <div className="p-2 pb-0 text-3xl font-semibold">
                                 All Attendees
                         </div>
-                        <div className="pl-2 link link-hover">Attendee Only Page</div>
-                        <Link className="pl-2 pb-2 link link-hover" href={`/${userId}/qr`}>QR Page</Link>
+                        <Link className="block pl-2 link link-hover" href={`/${userId}/`}>Attendee Only Page</Link>
+                        <Link className="block pl-2 pb-2 link link-hover" href={`/${userId}/qr`}>QR Page</Link>
                         <ul role="list">
                             <div className="max-h-[350px] sm:max-h-[700px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
                                 { attendees.length > 0 ? (
