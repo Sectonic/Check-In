@@ -33,8 +33,8 @@ export default function TopNav({ user, Logout }) {
               <ul className="menu menu-horizontal gap-3 px-1">
                 <li><div>Organizations</div></li>
                 <li><Link href="/dashboard/">Dashboard</Link></li>
-                <li><Link href="/login" className="btn btn-outline px-6">Login</Link></li>
-                <li><Link href="/register" className="btn btn-primary text-primary-content px-8">Sign Up</Link></li>
+                <li><Link href="/login" className="btn btn-outline">Login</Link></li>
+                <li><Link href="/register" className="btn btn-primary text-primary-content">Sign Up</Link></li>
               </ul>
             </div>
             <div className="navbar-end lg:hidden">
