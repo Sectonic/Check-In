@@ -12,7 +12,7 @@ export default function TopNav({ user, Logout }) {
       { user.active ? (
         <>
           {user.name ? (
-            <div className="navbar-end mr-4 xl:mr-10">
+            <div className="navbar-end mr-4 xl:mr-10 z-20">
               <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">
@@ -23,7 +23,7 @@ export default function TopNav({ user, Logout }) {
                   <li className="ml-4 font-semibold mt-1">Hello, {user.name}</li>
                   <li><Link href="/dashboard/">Dashboard</Link></li>
                   <li><div>Organizations</div></li>
-                  <li><div className="btn btn-outline btn-sm pt-1" onClick={Logout}>Logout</div></li>
+                  <li><div className="btn btn-outline btn-sm items-center" onClick={Logout}>Logout</div></li>
                 </ul>
               </div>
             </div>
@@ -45,8 +45,8 @@ export default function TopNav({ user, Logout }) {
                 <ul tabIndex={0} className="menu menu-compact dropdown-content p-2 shadow bg-base-100 rounded-box w-52 gap-2">
                   <li><Link href="/dashboard/">Dashboard</Link></li>
                   <li><div>Organizations</div></li>
-                  <li><Link className="btn btn-outline btn-sm pt-1" href="/login">Login</Link></li>
-                  <li><Link className="btn btn-primary btn-sm pt-1 text-primary-content" href="/register">Signup</Link></li>
+                  <li><Link className="btn btn-outline btn-sm" href="/login">Login</Link></li>
+                  <li><Link className="btn btn-primary btn-sm text-primary-content" href="/register">Signup</Link></li>
                 </ul>
               </div>
             </div>

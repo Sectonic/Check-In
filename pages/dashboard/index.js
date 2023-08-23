@@ -4,13 +4,16 @@ import db from "@/lib/prisma";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import EditAttendee from "@/components/popups/edit_attendee";
+import CsvImportPopup from "@/components/popups/csvImport";
 
 export const getServerSideProps = SsrRoute(
     async function getServerSideProps({ req }) {
         const user = req.session.user;
         const meets = await db.meet.findMany({
             where: {
-                id: { in: user.meets }
+                organizer: {
+                    id: user.id
+                }
             },
             select: {
                 id: true,
@@ -40,6 +43,7 @@ export const getServerSideProps = SsrRoute(
 export default function Dashboard({ meets, attendees, userId }) {
     const [error, setError] = useState('');
     const [edit, setEdit] = useState(false);
+    const [csvImport, setCsvImport] = useState(false);
     const [attendee, setAttendee] = useState({});
     const nameInput = useRef(null);
     const idInput = useRef(null);
@@ -111,6 +115,7 @@ export default function Dashboard({ meets, attendees, userId }) {
     return (
         <>
             { edit && <EditAttendee endEdit={endEdit} attendee={attendee} setEdit={setEdit} setAttendee={setAttendee} />}
+            { csvImport && <CsvImportPopup setCsvImport={setCsvImport} previousAttendees={attendees} />}
             <div className="glass !bg-primary text-white p-6 rounded-xl">
                 <div className="flex justify-end flex-col items-end">
                     <div className="text-3xl font-bold">
@@ -165,7 +170,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                     <div className="p-2 text-3xl font-semibold">
                         Meets
                     </div>
-                    <div className="grow dashboard-break:max-h-[900px] xl:max-h-[820px] overflow-x-auto dashboard-break:overflow-y-auto flex items-start dashboard-break:justify-start content-start bg-primary-content dashboard-break:flex-wrap gap-6 rounded-xl p-6">
+                    <div className="grow dashboard-break:max-h-[900px] xl:max-h-[820px] overflow-x-auto dashboard-break:overflow-y-auto flex items-start dashboard-break:justify-start content-start bg-base-300 dashboard-break:flex-wrap gap-6 rounded-xl p-6">
                         { meets.length > 0 ? (
                             <>
                                 {meets.map((meet,i) => (
@@ -210,7 +215,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                     </div>
                 </div>
                 <div>
-                    <div className="p-4 mt-5 dashboard-break:mt-3 glass !bg-primary-content rounded-xl">
+                    <div className="p-4 mt-5 dashboard-break:mt-3 glass !bg-base-300 rounded-xl">
                         <form className="bg-base-100 rounded-xl w-full p-3" onSubmit={createAttendee}>
                             <div className="font-bold text-lg">
                                 Create New Attendee
@@ -236,8 +241,20 @@ export default function Dashboard({ meets, attendees, userId }) {
                         <div className="p-2 pb-0 text-3xl font-semibold">
                                 All Attendees
                         </div>
-                        <Link className="block pl-2 link link-hover" href={`/${userId}/`}>Attendee Only Page</Link>
-                        <Link className="block pl-2 pb-2 link link-hover" href={`/${userId}/qr`}>QR Page</Link>
+                        <div className="px-2 pb-2 flex justify-between mt-1">
+                            <div>
+                                <Link className="block link link-hover" href={`/${userId}/`}>Attendee Only Page</Link>
+                                <Link className="block link link-hover" href={`/${userId}/qr`}>QR Page</Link>
+                            </div>
+                            <div>
+                                <div className="btn btn-primary btn-sm text-primary-content gap-1" onClick={() => setCsvImport(true)}>
+                                    <svg class="w-4 h-4 text-primary-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V5.828a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 1 7.828 1h8.239A.969.969 0 0 1 17 2v16a.969.969 0 0 1-.933 1H3.933A.97.97 0 0 1 3 18v-2M8 1v4a1 1 0 0 1-1 1H3m-2 6h10M9.061 9.232 11.828 12l-2.767 2.768"/>
+                                    </svg>
+                                    Import
+                                </div>
+                            </div>
+                        </div>
                         <ul role="list">
                             <div className="max-h-[350px] sm:max-h-[700px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
                                 { attendees.length > 0 ? (

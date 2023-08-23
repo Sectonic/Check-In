@@ -21,7 +21,6 @@ export default ApiRoute(
             res.status(409).send({ error: 'A meet already has this name'});
             return;
         }
-        console.log(user);
         const meetDict = {
             name, reoccurance, qr, manual, 
             organizer: {
