@@ -195,7 +195,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="w-5 h-5 fill-current"><path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"></path></svg>
                                                     </label>
                                                     <ul tabIndex={0} className="dropdown-content menu p-2 gap-1 shadow bg-base-100 rounded-box w-32">
-                                                        <li><div className="btn btn-ghost btn-sm flex items-center p-0" onClick={() => router.push(`/dashboard/${meet.id}`)}>View</div></li>
+                                                        <li><div className="btn btn-ghost btn-sm flex items-center" onClick={() => router.push(`/dashboard/${meet.id}`)}>View</div></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -278,11 +278,11 @@ export default function Dashboard({ meets, attendees, userId }) {
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="w-5 h-5 fill-current"><path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"></path></svg>
                                                     </label>
                                                     <ul tabIndex={0} className="dropdown-content menu p-2 gap-2 shadow bg-base-100 rounded-box w-32">
-                                                        <li><div className="btn btn-ghost btn-sm flex items-center p-0" onClick={() => {
+                                                        <li><div className="btn btn-ghost btn-sm flex items-center" onClick={() => {
                                                                 setEdit(true);
                                                                 setAttendee(attendee);
                                                             }}>Edit</div></li>
-                                                        <li><div className="btn btn-error btn-sm flex items-center p-0" onClick={() => deleteAttendee(attendee.id)}>Delete</div></li>
+                                                        <li><div className="btn btn-error btn-sm flex items-center" onClick={() => deleteAttendee(attendee.id)}>Delete</div></li>
                                                     </ul>
                                                 </div>
                                         </div>
