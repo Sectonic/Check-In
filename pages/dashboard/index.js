@@ -23,24 +23,32 @@ export const getServerSideProps = SsrRoute(
                 reoccurance: true,
                 manual: true,
                 _count: {
-                    select: { attendees: true }
+                    select: { attendees: true },
                 }
             }
         });
         const attendees = await db.attendee.findMany({
-            where: {
-                organizer: {
-                    id: user.id
-                }
-            }
+            where: { organizer: {id: user.id} }
         });
+        const eventCount = await db.event.count({
+            where: { meet: {organizer: {id: user.id} } }
+        });
+        const attendanceCount = await db.attendance.count({
+            where: { attendee: {organizer: {id: user.id} } }
+        });
+        const totalAttendees = () => {
+            var total = 0;
+            meets.forEach(meet => total += meet._count.attendees);
+            return total;
+        }
+        const participation = (attendanceCount / totalAttendees()) * 100;
         return {
-            props: { meets, attendees, userId: user.id }
+            props: { meets, attendees, userId: user.id, eventCount, attendanceCount, participation }
         }
     }
 )
 
-export default function Dashboard({ meets, attendees, userId }) {
+export default function Dashboard({ meets, attendees, userId, eventCount, attendanceCount, participation }) {
     const [error, setError] = useState('');
     const [edit, setEdit] = useState(false);
     const [csvImport, setCsvImport] = useState(false);
@@ -145,7 +153,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                             </div>
                             <div className="stat-title">Total Events Created</div>
-                            <div className="stat-value text-primary">63</div>
+                            <div className="stat-value text-primary">{eventCount}</div>
                             <div className="stat-desc">Events are every 'attendance day' you have made</div>
                         </div>
                         
@@ -154,7 +162,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
                             <div className="stat-title">Number of Attendances</div>
-                            <div className="stat-value text-secondary">468</div>
+                            <div className="stat-value text-secondary">{attendanceCount}</div>
                             <div className="stat-desc">Everytime anyone attended an event!</div>
                         </div>
                         
@@ -163,7 +171,7 @@ export default function Dashboard({ meets, attendees, userId }) {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-base-content"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                             </div>
                             <div className="stat-title">Percent of Participation</div>
-                            <div className="stat-value">84%</div>
+                            <div className="stat-value">{participation}%</div>
                             <div className="stat-desc">Both present and tardy count</div>
                         </div>
                     </div>

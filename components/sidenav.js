@@ -5,7 +5,7 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
 
     const setActive = current => {
         if (current === page) {
-            return "active";
+            return "active active-primary";
         } else {
             return "";
         }

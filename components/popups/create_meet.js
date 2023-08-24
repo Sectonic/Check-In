@@ -16,6 +16,8 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
     const [startTime, setStartTime] = useState({hour: '--', minute: '--', time: '--'});
     const [endTime, setEndTime] = useState({hour: '--', minute: '--', time: '--'});
     const [reoccuring, setReoccuring] = useState(false);
+    const [tardy, setTardy] = useState(null);
+    const [tardyCheck, setTardyCheck] = useState(true);
     const [error, setError] = useState('');
     const scopeSelect = useRef(null);
     const checkbox = useRef(null);
@@ -125,6 +127,13 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
         }
     }
 
+    const tardyHandler = (e) => {
+        if (!e.target.checked) {
+            setTardy('');
+        }
+        setTardyCheck(!e.target.checked);
+    }
+
     const timeDictParser = (timeDict) => {
         var minutes = String(timeDict.minute);
         if (String(timeDict.minute).length < 2) {
@@ -142,6 +151,11 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                         <span className="label-text">Name</span>
                     </label>
                     <input type="text" onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={32} placeholder="Type here" className="input input-bordered w-full" />
+                </div>
+                <div className="ml-1 mt-2 label-text">Tardies</div>
+                <div className="flex items-center gap-3 ml-1 mt-1">
+                    <input type="checkbox" className="checkbox checkbox-primary" onChange={tardyHandler} checked={!tardyCheck} />
+                    <input type="text" value={tardy} onChange={(e) => setTardy(e.target.value)} placeholder="Minutes untill tardy" className="input input-bordered w-full" disabled={tardyCheck} />
                 </div>
                 <div className="form-control w-max mt-2">
                     <label className="label cursor-pointer gap-2">

@@ -25,6 +25,7 @@ const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMee
                 showFooter={true} 
                 showShortcuts={true} 
                 readOnly={true} 
+                popoverDirection="down"
             /> 
             <div className='eventMenuScroll max-h-52 overflow-y-scroll w-full flex flex-col gap-2'>
                 {events.map(event => (

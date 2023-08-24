@@ -29,13 +29,11 @@ export default function TopNav({ user, Logout }) {
             </div>
           ) : (
             <>
-            <div className="navbar-end hidden lg:flex">
-              <ul className="menu menu-horizontal gap-3 px-1">
-                <li><div>Organizations</div></li>
-                <li><Link href="/dashboard/">Dashboard</Link></li>
-                <li><Link href="/login" className="btn btn-outline">Login</Link></li>
-                <li><Link href="/register" className="btn btn-primary text-primary-content">Sign Up</Link></li>
-              </ul>
+            <div className="navbar-end hidden lg:flex gap-3 justify-end items-center">
+              <div className="btn btn-ghost">Organizations</div>
+              <Link href="/dashboard/" className="btn btn-ghost">Dashboard</Link>
+              <Link href="/login" className="btn btn-outline px-6">Login</Link>
+              <Link href="/register" className="btn btn-primary px-7">Sign Up</Link>
             </div>
             <div className="navbar-end lg:hidden">
               <div className="dropdown dropdown-end">

@@ -30,7 +30,7 @@ export default function Overview({ currentMeet }) {
 
   useEffect(() => {
     if (!router.isReady) return;
-    getData(dayjs().subtract(30, 'day').unix(), dayjs().unix());
+    getData(dayjs(value.startDate).unix(), dayjs(value.endDate).unix());
   }, [router.query.meet_slug]);
 
   const valueHandler = async ({ startDate, endDate }) => {
@@ -49,6 +49,7 @@ export default function Overview({ currentMeet }) {
             showFooter={true} 
             showShortcuts={true} 
             readOnly={true} 
+            popoverDirection="down"
         /> 
       </div>
       <hr className="my-3"/>
