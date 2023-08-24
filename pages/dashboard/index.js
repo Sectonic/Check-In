@@ -41,7 +41,7 @@ export const getServerSideProps = SsrRoute(
             meets.forEach(meet => total += meet._count.attendees);
             return total;
         }
-        const participation = (attendanceCount / totalAttendees()) * 100;
+        const participation = Math.round((attendanceCount / totalAttendees()) * 100);
         return {
             props: { meets, attendees, userId: user.id, eventCount, attendanceCount, participation }
         }

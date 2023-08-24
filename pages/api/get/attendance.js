@@ -4,8 +4,6 @@ import * as dayjs from 'dayjs';
 export default async function handler(req, res) {
   const { search, meetId, eventId, startTime, endTime } = req.query;
 
-  console.log(meetId, eventId);
-
   const checkDurationHours = (dict) => {
     if (dict.time === 'PM' && dict.hour < 12) {
         return dict.hour + 12;
