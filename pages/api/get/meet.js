@@ -2,7 +2,7 @@ import db from "@/lib/prisma";
 
 export default async function handler(req, res) {
     const { meetId } = req.query;
-    if (meetId === 'undefined') {
+    if (!meetId) {
         res.status(500).end();
     } else {
         const meet = await db.meet.findUnique({
