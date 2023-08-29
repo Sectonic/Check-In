@@ -46,7 +46,7 @@ model Meet {
   imageId String?
   organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   organizerId Int
-  // tardy Int
+  tardy Int?
   events Event[]
   attendees Attendee[]
   reoccurances Reoccurance[]

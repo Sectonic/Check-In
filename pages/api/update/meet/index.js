@@ -13,7 +13,7 @@ export default ApiRoute(
         res.status(401).send({ error: 'A Organizer account is needed to access'});
         return;
     }
-    const { oldFileId, meetId, name, startDict, endDict, scope, reoccurances, imageB64 } = req.body;
+    const { oldFileId, meetId, name, startDict, endDict, scope, reoccurances, imageB64, tardy } = req.body;
     const sameName = await db.meet.findFirst({
         where: { name, id: { not: meetId } }
     });
@@ -30,6 +30,7 @@ export default ApiRoute(
             })
         }
     };
+    updatingEntry.tardy = tardy !== "" ? Number(tardy) : null;
     if (imageB64) {
         deleteFile(oldFileId)
         const { id, url } = await uploadFile(name, imageB64);

@@ -139,10 +139,8 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
             </div>
             { error != "" && (
                 <div className="alert alert-error mt-4">
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>{error}</span>
-                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>{error}</span>
                 </div>
             )}
             <div className="mt-6 gap-5 dashboard-break:grid dashboard-break:grid-cols-3">
@@ -171,7 +169,7 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-base-content"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                             </div>
                             <div className="stat-title">Percent of Participation</div>
-                            <div className="stat-value">{participation}%</div>
+                            <div className="stat-value">{participation || '0'}%</div>
                             <div className="stat-desc">Both present and tardy count</div>
                         </div>
                     </div>

@@ -68,7 +68,7 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
         }
 
         const data = {
-            name,
+            name, tardy,
             reoccurance: reoccuring,
             startDict: JSON.stringify(startTime),
             endDict: JSON.stringify(endTime),
@@ -152,10 +152,10 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                     </label>
                     <input type="text" onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={32} placeholder="Type here" className="input input-bordered w-full" />
                 </div>
-                <div className="ml-1 mt-2 label-text">Tardies</div>
+                <div className="ml-1 mt-2 label-text">Tardies (min)</div>
                 <div className="flex items-center gap-3 ml-1 mt-1">
                     <input type="checkbox" className="checkbox checkbox-primary" onChange={tardyHandler} checked={!tardyCheck} />
-                    <input type="text" value={tardy} onChange={(e) => setTardy(e.target.value)} placeholder="Minutes untill tardy" className="input input-bordered w-full" disabled={tardyCheck} />
+                    <input type="text" value={tardy} onChange={(e) => setTardy(e.target.value.replace(/\D/g, ""))} placeholder="Minutes untill tardy" className="input input-bordered w-full" disabled={tardyCheck} />
                 </div>
                 <div className="form-control w-max mt-2">
                     <label className="label cursor-pointer gap-2">
@@ -242,10 +242,8 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                 </div>
                 { error.length > 0 && (
                     <div className="alert alert-error mt-5">
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <span>{error}</span>
-                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{error}</span>
                     </div>
                 )}
                 <div className="modal-action">

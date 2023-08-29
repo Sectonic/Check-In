@@ -14,57 +14,19 @@ export default function MeetSettings({ setSettings, meet }) {
     const [scope, setScope] = useState(meet.scope);
     const [startTime, setStartTime] = useState(JSON.parse(meet.startDict));
     const [endTime, setEndTime] = useState(JSON.parse(meet.endDict));
+    const [tardy, setTardy] = useState(meet.tardy || null);
+    const [tardyCheck, setTardyCheck] = useState(!meet.tardy);
     const reoccuring = meet.reoccurance;
     const [error, setError] = useState('');
     const scopeSelect = useRef(null);
 
     const meetSubmit = async (e) => {
         e.preventDefault();
-        
-        if (reoccuring) {
-            if (scope.length === 0) {
-                setError('Select a scope. Reoccurance needs a scope to be selected.');
-                return;
-            }
-            if (scope === "Weekly" && dates.length === 0) {
-                setError('Select days of the week. To use the weekly scope, you need at least one day selected');
-                return;
-            }
-            if (timeDictParser(startTime) === timeDictParser(endTime)) {
-                setError('Change your start and end times. They cannot be the same time.');
-                return;
-            }
-        }
-
-        const checkDurationHours = (dict) => {
-            if (dict.time === 'PM' && dict.hour < 12) {
-                return dict.hour + 12;
-            }
-            if (dict.time === 'AM' && dict.hour === 12) {
-                return 0
-            }
-        }
-
-        var startDuration = dayjs.duration({
-            hours: checkDurationHours(startTime),
-            minutes: startTime.minute,
-            seconds: startTime.second
-        }).asSeconds();
-        var endDuration = dayjs.duration({
-            hours: checkDurationHours(endTime),
-            minutes: endTime.minute,
-            seconds: endTime.second
-        }).asSeconds();
-
-        if (startDuration > endDuration) {
-            setError('Change your start time to be lower than your end time.');
-            return;
-        }
 
         const data = {
             oldFileId: meet.fileId,
             meetId: meet.id,
-            name,
+            name, tardy,
             startDict: JSON.stringify(startTime),
             endDict: JSON.stringify(endTime),
             scope,
@@ -122,6 +84,13 @@ export default function MeetSettings({ setSettings, meet }) {
         if (meet.manual) return 'Manual';
     }
 
+    const tardyHandler = (e) => {
+        if (!e.target.checked) {
+            setTardy('');
+        }
+        setTardyCheck(!e.target.checked);
+    }
+
     return (
         <div className="modal modal-open modal-bottom sm:modal-middle">
             <form className="modal-box" method="POST" onSubmit={meetSubmit}>
@@ -136,6 +105,11 @@ export default function MeetSettings({ setSettings, meet }) {
                         <span className="label-text">Name</span>
                     </label>
                     <input type="text" onChange={(e) => setName(e.target.value)} value={name} required minLength={2} maxLength={32} placeholder="Type here" className="input input-bordered w-full" />
+                </div>
+                <div className="ml-1 mt-2 label-text">Tardies (min)</div>
+                <div className="flex items-center gap-3 ml-1 mt-1">
+                    <input type="checkbox" className="checkbox checkbox-primary" onChange={tardyHandler} checked={!tardyCheck} />
+                    <input type="text" value={tardy} onChange={(e) => setTardy(e.target.value.replace(/\D/g, ""))} placeholder="Minutes untill tardy" className="input input-bordered w-full" disabled={tardyCheck} />
                 </div>
                 { meet.reoccurance && (
                     <>
@@ -211,10 +185,8 @@ export default function MeetSettings({ setSettings, meet }) {
                 </div>
                 { error.length > 0 && (
                     <div className="alert alert-error mt-5">
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <span>{error}</span>
-                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{error}</span>
                     </div>
                 )}
                 <div className="modal-action">

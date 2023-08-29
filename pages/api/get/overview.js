@@ -6,6 +6,8 @@ export default async function handler(req, res) {
     meetId = Number(meetId);
     startTime = Number(startTime);
     endTime = Number(endTime);
+
+    const meet = await db.meet.findUnique({ where: { id: meetId } });
   
     var events = await db.event.findMany({
       where: {
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
     const graphPoints = events.map(event => {
       const all_attendees = event.meet._count.attendees;
       const name = dayjs.unix(event.startTime).format('MMM D');
-      const tardy = event.attendances.reduce((count, attendance) => count + (attendance.submitted > 5 ? 1 : 0), 0);
+      const tardy = event.attendances.reduce((count, attendance) => count + (attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 1 : 0), 0);
       const present = event._count.attendances - tardy;
       const absent = all_attendees - (present + tardy);
       return { name, tardy, present, absent };
@@ -63,7 +65,7 @@ export default async function handler(req, res) {
     const counts = {};
     for (const event of events) {
       for (const attendance of event.attendances) {
-        piePoints[attendance.submitted > 5 ? 2 : 0].value++;
+        piePoints[attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 2 : 0].value++;
         const num = attendance.submitted;
         counts[num] = (counts[num] || 0) + 1;
       }

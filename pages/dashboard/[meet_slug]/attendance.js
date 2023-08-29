@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import OutsideClickHandler from 'react-outside-click-handler';
 import * as dayjs from 'dayjs';
 import EditAttendance from "@/components/popups/edit_attendance";
-import io from 'socket.io-client';
 import CreateEvent from "@/components/popups/create_event";
-var socket;
+import EditEvent from '@/components/popups/edit_event';
 
 export default function Attendance({ currentMeet }) {
   const router = useRouter();
@@ -19,12 +18,14 @@ export default function Attendance({ currentMeet }) {
   const [edit, setEdit] = useState(null);
   const [create, setCreate] = useState(false);
   const [includeAbsent, setIncludeAbsent] = useState(true);
+  const [eventEdit, setEventEdit] = useState(false);
+  const [event, setEvent] = useState(null);
   const [value, setValue] = useState({ 
     startDate: dayjs().subtract(30, 'day').format('YYYY-MM-DD'), 
     endDate:  dayjs().add(1, 'day').format('YYYY-MM-DD')
   });
-  const roomId = 'meet-' + currentMeet.id;
   const dropdown = useRef(null);
+  const [loading, setLoading] = useState(true);
   
 
   const searchHandler = (e) => {
@@ -43,6 +44,7 @@ export default function Attendance({ currentMeet }) {
   }
 
   const getAttendanceData = async () => {
+    setLoading(true);
     const attendanceDict = { 
       search: router.query.search || '', 
       eventId: router.query.eventId, 
@@ -60,6 +62,7 @@ export default function Attendance({ currentMeet }) {
     if (attendanceData.newStartTime) {
       setValue({ startDate: attendanceData.newStartTime, endDate: value.endDate });
     }
+    setLoading(false);
   }
 
   const outsideHandler = () => {
@@ -71,30 +74,11 @@ export default function Attendance({ currentMeet }) {
     getAttendanceData();
   }
 
-  const socketInitializer = async () => {
-    await fetch('/api/socket');
-    socket = io();
-
-    socket.on('connect', () => {
-      socket.emit('join-room', roomId);
-    });
-
-    socket.on('attendance-updated', newAttendance => {
-      setAttendance(prev => [...prev, newAttendance]);
-      setNotAttended(prev => prev.filter(e => e.id !== newAttendance.id));
-    })
-  }
-
   useEffect(() => {
     const params = new URLSearchParams({ search: '', eventId: ''})
     if (!router.query.eventId) {
       router.push('/dashboard/' + currentMeet.id + '/attendance?' + params), undefined, { shallow: true };
     }
-    socketInitializer();
-
-    return () => {
-      socket.disconnect();
-    };
   }, [router.isReady]);
 
   useEffect(() => {
@@ -105,7 +89,8 @@ export default function Attendance({ currentMeet }) {
   return (
       <>  
         { edit && <EditAttendance setEdit={setEdit} attendance={edit} endEdit={endEdit} currentEvent={currentEvent}  /> }
-        { create && <CreateEvent setCreate={setCreate} currentMeet={currentMeet} fetchMeets={() => console.log('fetch')} /> }
+        { create && <CreateEvent setCreate={setCreate} currentMeet={currentMeet} /> }
+        { eventEdit && <EditEvent event={event} setEventEdit={setEventEdit} currentMeet={currentMeet} />}
         <div className="flex justify-start items-end gap-5">
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}
@@ -115,12 +100,14 @@ export default function Attendance({ currentMeet }) {
             {currentEvent || futureEvents.length !== 0 ? (
               <>
                 <label tabIndex={0} className="btn btn-ghost" onClick={() => {dropdown.current.className = "dropdown dropdown-open min-w-max"}}>
-                  {currentEvent?.name || 'No Attendance'}
+                  {loading ? 'Loading...' : (currentEvent?.name || 'No Attendance')}
                   <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
                 </label>
                 <OutsideClickHandler onOutsideClick={outsideHandler}>
                   <ul tabIndex={0} className="flex-col dropdown-content menu p-2 shadow bg-base-100 rounded-box w-[280px] gap-2 z-20">
                     <EventPicker 
+                      setEvent={setEvent}
+                      setEventEdit={setEventEdit}
                       currentMeet={currentMeet} 
                       setEvents={setEvents} 
                       currentEvent={currentEvent} 
@@ -172,54 +159,58 @@ export default function Attendance({ currentMeet }) {
           </div>
         ) }
 
-        <div className="overflow-x-auto">
-          <table className="table w-full rounded-none">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Attendance</th>
-                <th>Submitted In (min)</th>
-                {/* <th>What's your favorite color?</th> */}
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-
-              {attendance.map(row => (
+        {loading ? (
+            <div className='flex justify-center items-center h-[calc(100vh-330px)]'>
+              <div className='mx-auto' role="status">
+                <span className="loading loading-dots loading-md"></span>
+              </div>
+            </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table w-full rounded-none">
+              <thead>
                 <tr>
-                  <th>
-                    {row.attendee.name}
-                    <br/>
-                    <span className="text-[11px] font-normal">{row.attendee.specificId}</span>
-                  </th>
-                  <td>
-                    {row.submitted > 5 ? (
-                      <span className={`badge badge-warning font-semibold`}>Tardy</span>
-                    ) : (
-                      <span className={`badge badge-success font-semibold`}>Present</span>
-                    )}
-                  </td>
-                  <td>{row.submitted}</td>
-                  {/* <td>Purple</td> */}
-                  <td><button onClick={() => setEdit(row)} className="btn btn-square btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
+                  <th>Name</th>
+                  <th>Attendance</th>
+                  <th>Submitted In (min)</th>
+                  <th></th>
                 </tr>
-              ))}
-              {includeAbsent && notAttended.map(row => (
-                <tr>
-                  <th>
-                    {row.name}
-                    <br/>
-                    <span className="text-[11px] font-normal">{row.specificId}</span>
-                  </th>
-                  <td><span className="badge badge-error font-semibold">Absent</span></td>
-                  <td>--</td>
-                  {/* <td>Purple</td> */}
-                  <td><button onClick={() => setEdit(row)} className="btn btn-square btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {attendance.map(row => (
+                  <tr>
+                    <th>
+                      {row.attendee.name}
+                      <br/>
+                      <span className="text-[11px] font-normal">{row.attendee.specificId}</span>
+                    </th>
+                    <td>
+                      {row.submitted > (currentMeet.tardy || row.submitted + 1) ? (
+                        <span className={`badge badge-warning font-semibold`}>Tardy</span>
+                      ) : (
+                        <span className={`badge badge-success font-semibold`}>Present</span>
+                      )}
+                    </td>
+                    <td>{row.submitted}</td>
+                    <td><button onClick={() => setEdit(row)} className="btn btn-square btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
+                  </tr>
+                ))}
+                {includeAbsent && notAttended.map(row => (
+                  <tr>
+                    <th>
+                      {row.name}
+                      <br/>
+                      <span className="text-[11px] font-normal">{row.specificId}</span>
+                    </th>
+                    <td><span className="badge badge-error font-semibold">Absent</span></td>
+                    <td>--</td>
+                    <td><button onClick={() => setEdit(row)} className="btn btn-square btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </>
   )
 }

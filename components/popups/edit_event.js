@@ -1,16 +1,25 @@
+import { useRouter } from "next/router";
 import { useState } from "react";
 
-export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee}) {
-    const [name, setName] = useState(attendee.name);
-    const [specificId, setSpecificId] = useState(attendee.specificId);
+export default function EditEvent({ event, setEventEdit, currentMeet }) {
+    const [name, setName] = useState(event.name);
     const [error, setError] = useState('');
+    const router = useRouter();
 
     const editHandler = async (e) => {
         e.preventDefault();
 
-        const request = await fetch(`/api/update/attendee?id=${attendee.id}&name=${name}&specificId=${specificId}`);
+        if (name === event.name) {
+            return;
+        }
+
+        const request = await fetch(`/api/update/event?` + new URLSearchParams({ id: event.id, name, meetId: currentMeet.id }));
         if (request.ok) {
-            endEdit();
+            if (!router.query.search && !router.query.eventId) {
+                router.reload();
+            } else {
+                router.push(`/dashboard/${router.query.meet_slug}/attendance?` + new URLSearchParams({ search: '', eventId: '' }));
+            }
         } else {
             const data = await request.json();
             setError(data.error);
@@ -18,21 +27,24 @@ export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee})
 
     }
 
+    const deleteHandler = async () => {
+        await fetch(`/api/delete/event?id=${event.id}`);
+        if (!router.query.search && !router.query.eventId) {
+            router.reload();
+        } else {
+            router.push(`/dashboard/${router.query.meet_slug}/attendance?` + new URLSearchParams({ search: '', eventId: '' }));
+        }
+    }
+
     return (
         <div className="modal modal-open modal-bottom sm:modal-middle">
             <form className="modal-box" onSubmit={editHandler}>
-                <h3 className="font-bold text-xl">Edit Attendee: {name}</h3>
+                <h3 className="font-bold text-xl">Edit Event: {name}</h3>
                 <div className="form-control w-full">
                     <label className="label">
                         <span className="label-text">Name</span>
                     </label>
                     <input required type="text" placeholder="Type a name" className="input input-bordered w-full" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-                <div className="form-control w-full">
-                    <label className="label">
-                        <span className="label-text">ID</span>
-                    </label>
-                    <input required maxLength={16} type="text" placeholder="Type an ID" className="input input-bordered w-full" value={specificId} onChange={(e) => setSpecificId(e.target.value)} />
                 </div>
                 { error.length > 0 && (
                     <div className="alert alert-error mt-5">
@@ -42,9 +54,9 @@ export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee})
                 )}
                 <div className="modal-action">
                     <button className="btn btn-success" type="submit">Edit</button>
+                    <button className="btn btn-error" type="button" onClick={deleteHandler}>Delete</button>
                     <label className="btn btn-ghost" onClick={() => {
-                        setEdit(false);
-                        setAttendee({});
+                        setEventEdit(false);
                     }}>Dismiss</label>
                 </div>
             </form>

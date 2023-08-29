@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs';
 import Datepicker from "react-tailwindcss-datepicker"; 
 
-const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMeet, value, setValue, futureEvents }) => {
+const EventPicker = ({ setEvent, setEventEdit, events, setEvents, currentEvent, eventHandler, currentMeet, value, setValue, futureEvents }) => {
 
     const handleValueChange = async (newValue) => {
         if (newValue.startDate) {
@@ -29,12 +29,26 @@ const EventPicker = ({ events, setEvents, currentEvent, eventHandler, currentMee
             /> 
             <div className='eventMenuScroll max-h-52 overflow-y-scroll w-full flex flex-col gap-2'>
                 {events.map(event => (
-                    <li><a className={`text-sm ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`} onClick={() => eventHandler(event.id)}>{event.name}</a></li>
+                    <li>
+                        <div className={`p-0 text-sm flex justify-between ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`}>
+                            <div className='p-2 flex-grow' onClick={() => eventHandler(event.id)}>{event.name}</div>
+                            <div className='pr-2' onClick={() => {setEventEdit(true);setEvent(event)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="z-10 w-5 h-5 fill-current"><path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"></path></svg>
+                            </div>
+                        </div>
+                    </li>
                 ))}
                 { events.length === 0 && <div className='text-sm font-thin text-center' >No events between dates</div>}
                 { futureEvents.length > 0 && <div className='font-semibold text-sm px-4 mt-2 -mb-1'>Future Events</div>}
                 {futureEvents.map(event => (
-                    <li><a className={`text-sm ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`} onClick={() => eventHandler(event.id)}>{event.name}</a></li>
+                    <li>
+                        <div className={`p-0 text-sm flex justify-between ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`}>
+                            <div className='p-2 flex-grow' onClick={() => eventHandler(event.id)}>{event.name}</div>
+                            <div className='pr-2' onClick={() => {setEventEdit(true);setEvent(event)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="z-10 w-5 h-5 fill-current"><path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"></path></svg>
+                            </div>
+                        </div>
+                    </li>
                 ))}
             </div>
         </>

@@ -41,9 +41,7 @@ export default function Register({ fetchUser, fetchMeets }) {
             const data = await response.json();
             setError(data.error);
         } else {
-            await fetchUser();
-            await fetchMeets();
-            router.push('/dashboard/');
+            window.location.href = '/dashboard/';
         }
     }
 
@@ -61,9 +59,10 @@ export default function Register({ fetchUser, fetchMeets }) {
                     </div>
                     <div className="flex items-center w-full max-w-3xl p-8 mx-auto lg:px-12 lg:w-3/5">
                         <div className="w-full text-center md:text-left">
-                            {error.length != 0 && <div className="alert alert-error shadow-lg mb-5">
+                            {error.length != 0 && 
+                            <div className="alert alert-error shadow-lg mb-5">
                                 <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     <div>
                                     <h3>{error}</h3>
                                     </div>

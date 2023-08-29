@@ -13,7 +13,7 @@ export default ApiRoute(
             res.status(401).send({ error: 'A Organizer account is needed to access'});
             return;
         }
-        const { name, reoccurance, qr, image, startDict, endDict, manual, scope, reoccurances } = req.body;
+        const { name, reoccurance, qr, image, startDict, endDict, manual, scope, reoccurances, tardy } = req.body;
         const name_exists = !!await db.meet.findFirst({
             where: {name}
         });
@@ -28,6 +28,9 @@ export default ApiRoute(
                     id: user.id
                 }
             }
+        }
+        if (tardy !== '') {
+            meetDict.tardy = Number(tardy);
         }
         if (image) {
             const { id, url } = await uploadFile(name, image);

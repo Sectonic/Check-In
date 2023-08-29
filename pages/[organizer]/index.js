@@ -27,6 +27,9 @@ export default function Organizer({ organizer }) {
     return (
         <div className="mx-auto max-w-[1700px]">
             <h1 className="text-2xl font-semibold max-sm:text-center">{organizer.name}'s Attendee Only List</h1>
+            <div>
+                
+            </div>
         </div>
     )
 }
