@@ -28,7 +28,7 @@ export const getServerSideProps = async ({ params }) => {
 
 
 export default function Page({ organizer }) {
-    const { Canvas } = useQRCode();
+    const { SVG } = useQRCode();
     const [attendees, setAttendees] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(false);
@@ -62,7 +62,7 @@ export default function Page({ organizer }) {
                             <div className="p-5 bg-primary-content shadow-lg rounded-lg flex justify-center flex-col gap-2" key={attendee.specificId}>
                                 <div className="text-center -mb-1">{attendee.name}</div>
                                 <div className="font-bold text-center">{organizer.name}</div>
-                                <Canvas
+                                <SVG
                                     text={attendee.specificId}
                                     options={{
                                         level: 'L',
@@ -73,14 +73,6 @@ export default function Page({ organizer }) {
                                         dark: '#000',
                                         light: '#fff',
                                         },
-                                    }}
-                                    logo={{
-                                        src: 'https://ui-avatars.com/api/?background=fff&color=000&rounded=true&bold=true&font-size=.6&' + new URLSearchParams({name: organizer.name}),
-                                        options: {
-                                        width: 35,
-                                        x: undefined,
-                                        y: undefined,
-                                        }
                                     }}
                                 />
                             </div>

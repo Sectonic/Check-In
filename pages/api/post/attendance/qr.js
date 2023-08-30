@@ -71,14 +71,17 @@ export default ApiRoute(async function (req, res) {
     }
 
     const submitted = dayjs().diff(dayjs.unix(inTimeEvent.startTime), 'minute');
-    const hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'hour');
+    var hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'hour');
+    if (hours === 0) {
+      hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'minute') / 60;
+    }
 
     await db.attendance.create({
       data: {
         attendee: { connect: { id: attendee.id } },
         event: { connect: { id: inTimeEvent.id } },
         submitted,
-        hours
+        hours: Math.round(hours * 100) / 100
       }
     });
 
@@ -135,14 +138,17 @@ export default ApiRoute(async function (req, res) {
       });
 
       const submitted = dayjs().diff(newStartTime, 'minute')
-      const hours = newEndTime.diff(newStartTime, 'hour');
+      var hours = newEndTime.diff(newStartTime, 'hour');
+      if (hours === 0) {
+          hours = newEndTime.diff(newStartTime, 'minute') / 60;
+      }
 
       await db.attendance.create({
         data: {
           attendee: { connect: { id: attendee.id } },
           event: { connect: { id: newEvent.id } },
           submitted,
-          hours
+          hours: Math.round(hours * 100) / 100
         }
       });
 

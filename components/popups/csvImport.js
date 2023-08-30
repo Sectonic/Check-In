@@ -64,7 +64,7 @@ const CsvImportPopup = ({ setCsvImport, previousAttendees }) => {
         <div className="modal modal-open modal-bottom sm:modal-middle">
             <div className="modal-box">
                 <h3 className="font-bold text-xl">Import Attendees</h3>
-                <div className="my-1 bg-base-200 p-2 rounded-lg text-xs">*Will remove all current attendees unless the CSV provides an identical Name and ID</div>
+                <div className="my-1 bg-base-200 p-2 rounded-lg text-xs">*Be aware that this will remove all current attendees and attendances</div>
                 { !cols ? (
                     <>
                         <div className="mx-auto form-control w-full mt-4">

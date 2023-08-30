@@ -11,13 +11,16 @@ export default async function handler(req, res) {
             data: { submitted: late }
         });
     } else if (attendance === 'Attended' && !attendanceId) {
-        const hours = dayjs.unix(startTime).diff(dayjs.unix(endTime), 'hour');
+        var hours = dayjs.unix(endTime).diff(dayjs.unix(startTime), 'hour');
+        if (hours === 0) {
+            hours = dayjs.unix(endTime).diff(dayjs.unix(startTime), 'minute') / 60;
+        }
         await db.attendance.create({
             data: {
                 attendee: { connect: { id: attendeeId } },
                 event: { connect: { id: eventId } },
                 submitted: late,
-                hours
+                hours: Math.round(hours * 100) / 100
             }
         });
     }
