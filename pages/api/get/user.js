@@ -1,4 +1,5 @@
 import { ApiRoute } from "@/lib/config";
+import exclude from "@/lib/exclude";
 import db from "@/lib/prisma";
 
 export default ApiRoute(
@@ -10,22 +11,17 @@ export default ApiRoute(
         userInfo = await db.organization.findFirst({
           where: {
             id: user.id
-          },
-          select: {
-            name: true
           }
         })
       } else {
         userInfo = await db.organizer.findFirst({
           where: {
             id: user.id
-          },
-          select: {
-            name: true
           }
         })
       }
     }
+    userInfo = exclude(userInfo, ['password'])
     res.status(200).json({...userInfo, active: true});
   }
 )

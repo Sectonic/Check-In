@@ -33,7 +33,7 @@ export default ApiRoute(
     updatingEntry.tardy = tardy !== "" ? Number(tardy) : null;
     if (imageB64) {
         deleteFile(oldFileId)
-        const { id, url } = await uploadFile(name, imageB64);
+        const { id, url } = await uploadFile(name, imageB64, '/meets/');
         updatingEntry.image = url;
         updatingEntry.imageId = id;
     }

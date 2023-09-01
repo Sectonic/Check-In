@@ -68,7 +68,7 @@ export default function App({ Component, pageProps}) {
 
     return (
       <DashboardLayout page={dashboardPage} meets={meets} fetchMeets={fetchMeets} currentMeet={currentMeet}>
-        <TopNav user={user} Logout={Logout} />
+        <TopNav user={user} Logout={Logout} fetchUser={fetchUser} />
         <div className='p-6 mx-auto max-w-[1700px]'>
             {currentMeet || notInMeet ? (
               <Component {...pageProps} currentMeet={currentMeet} />
@@ -85,7 +85,7 @@ export default function App({ Component, pageProps}) {
   } else {
     return (
       <>
-        <TopNav user={user} Logout={Logout}  />
+        <TopNav user={user} Logout={Logout} fetchUser={fetchUser}  />
         <div className='p-6 mx-auto'>
           <Component {...pageProps} fetchUser={fetchUser} fetchMeets={fetchMeets} />
         </div>

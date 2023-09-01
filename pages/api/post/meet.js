@@ -33,7 +33,7 @@ export default ApiRoute(
             meetDict.tardy = Number(tardy);
         }
         if (image) {
-            const { id, url } = await uploadFile(name, image);
+            const { id, url } = await uploadFile(name, image, '/meets/');
             meetDict.image = url;
             meetDict.imageId = id;
         }
