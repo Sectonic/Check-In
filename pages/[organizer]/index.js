@@ -17,34 +17,62 @@ export const getServerSideProps = async ({ params }) => {
       return { redirect: { destination: '/', permanent: false } };
   
     const meetIds = organizer.meets.map(meet => meet.id);
-  
-    const attendees = await db.attendee.findMany({
-      where: { organizer: { id: organizerId } },
-      include: {
-        attendances: {
-          where: { event: { meet: { id: { in: meetIds } } } },
-          include: { event: { select: { name: true, startTime: true, endTime: true, meet: { select: { id: true } } } } }
+
+    const meetAttends = await db.meet.findMany({
+      where: { id: { in: meetIds } },
+      select: {
+        id: true,
+        events: {
+          include: {
+            attendances: true
+          }
         },
-        meets: { select: { _count: { select: { events: true } } } }
+        attendees: { select: { id: true, specificId: true, name: true } }
       }
     });
+
+    const attendees = [];
+    meetAttends.forEach(meet => {
+      
+      meet.attendees.forEach(attendee => {
+        const index = attendees.findIndex(obj => obj.id === attendee.id);
+        if (index === -1) {
+          attendees.push({...attendee, totalEvents: meet.events.length, totalHours: 0, eventsAttended: 0, attendances: 0, totalTimeSubmitted: 0, attendances: []});
+        } else {
+          const currentAttendee = {...attendees[index]};
+          attendees[index] = {...currentAttendee, totalEvents: currentAttendee.totalEvents + meet.events.length}
+        }
+      });
+
+      meet.events.forEach(event => {
+        event.attendances.forEach(attendance => {
+          const index = attendees.findIndex(obj => obj.id === attendance.attendeeId);
+          if (index !== -1) {
+            const attendee = {...attendees[index]};
+            const {attendances, ...eventWithoutAttendances} = event;
+            attendees[index] = {
+              ...attendee, 
+              totalHours: attendee.totalHours + attendance.hours,
+              eventsAttended: attendee.eventsAttended + 1,
+              attendances: [...attendee.attendances, {...attendance, event: eventWithoutAttendances, meetId: meet.id}],
+              totalTimeSubmitted: attendee.totalTimeSubmitted + attendance.submitted,
+            }
+          }
+        })
+      })
+      
+    })
   
     const transformedAttendees = attendees.map(attendee => {
-        const eventsAttended = attendee.attendances.length;
-        const totalEvents = attendee.meets.reduce((t, m) => t + m._count.events, 0);
+      const { id, name, specificId, totalEvents, totalHours, eventsAttended, totalTimeSubmitted, attendances } = attendee;
         
         return {
-          id: attendee.id,
-          name: attendee.name,
-          specificId: attendee.specificId,
-          eventsAttended,
+          id, name, specificId, eventsAttended, totalHours, attendances,
           eventsNotAttended: totalEvents - eventsAttended,
           attendanceRate: parseFloat(((eventsAttended / totalEvents) * 100).toFixed(2)),
-          totalHours: attendee.attendances.reduce((t, a) => t + a.hours, 0),
-          avgTimeSubmitted: parseFloat((attendee.attendances.reduce((t, a) => t + a.submitted, 0) / eventsAttended || 0).toFixed(2)),
-          attendances: attendee.attendances
+          avgTimeSubmitted: parseFloat(totalTimeSubmitted / eventsAttended || 0).toFixed(2),
         };
-      });
+    });
   
     const sortedAttendees = transformedAttendees.sort((a, b) => {
         const combinedA = a.attendanceRate * 0.7 + a.totalHours * 0.3;
@@ -56,9 +84,6 @@ export const getServerSideProps = async ({ params }) => {
         props: { organizer, attendees: sortedAttendees }
     };
 }
-
-// Average Attendance %, Average Time Submitted, Number of Total Hours, Number of Events Attended, Number of Events not attended
-// Show the stats above, 
 
 export default function Organizer({ organizer, attendees }) {
   const [view, setView] = useState({});

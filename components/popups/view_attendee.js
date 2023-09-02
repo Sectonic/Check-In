@@ -1,4 +1,5 @@
 import Link from "next/link";
+import * as dayjs from 'dayjs';
 
 export default function ViewAttendee({ view, setView }) {
 
@@ -11,10 +12,10 @@ export default function ViewAttendee({ view, setView }) {
                         <div className="p-4 border rounded-xl flex justify-between w-full">
                             <div>
                                 <div className="font-bold">{attendance.event.name}</div>
-                                <div className="mt-1 text-sm">Jan 5 2025 <span className="ml-1 badge badge-ghost">1:00 PM - 2:00 PM</span></div>
+                                <div className="mt-1 text-sm">{dayjs.unix(attendance.event.startTime).format('MMM D YYYY')} <span className="ml-1 badge badge-ghost">{dayjs.unix(attendance.event.startTime).format('h:mm A')} - {dayjs.unix(attendance.event.endTime).format('h:mm A')}</span></div>
                             </div>
                             <div>
-                                <Link className="btn btn-ghost" href={`/dashboard/${attendance.event.meet.id}/attendance?${new URLSearchParams({ eventId: attendance.eventId, search: view.specificId })}`}>Go To</Link>
+                                <Link className="btn btn-ghost" href={`/dashboard/${attendance.meetId}/attendance?${new URLSearchParams({ eventId: attendance.eventId, search: view.specificId })}`}>Go To</Link>
                             </div>
                         </div>
                     ))}
