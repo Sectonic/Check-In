@@ -23,7 +23,10 @@ export const getServerSideProps = SsrRoute(
                 reoccurance: true,
                 manual: true,
                 _count: {
-                    select: { attendees: true },
+                    select: { 
+                        attendees: true,
+                        events: true
+                    },
                 }
             }
         });
@@ -38,11 +41,11 @@ export const getServerSideProps = SsrRoute(
             where: { meet: {organizer: {id: user.id} } }
         });
         const attendanceCount = await db.attendance.count({
-            where: { attendee: {organizer: {id: user.id} } }
+            where: { attendee: {organizer: {id: user.id}, attended: true } }
         });
         const totalAttendees = () => {
             var total = 0;
-            meets.forEach(meet => total += meet._count.attendees);
+            meets.forEach(meet => total += (meet._count.attendees * meet._count.events));
             return total;
         }
         const participation = Math.round((attendanceCount / totalAttendees()) * 100);
