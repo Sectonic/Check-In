@@ -12,6 +12,7 @@ export default function CreateEvent({ setCreate, currentMeet }) {
     const [name, setName] = useState('');;
     const [startTime, setStartTime] = useState({hour: '--', minute: '--', time: '--'});
     const [endTime, setEndTime] = useState({hour: '--', minute: '--', time: '--'});
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [value, setValue] = useState({ 
         startDate: null, 
@@ -20,14 +21,17 @@ export default function CreateEvent({ setCreate, currentMeet }) {
 
     const meetSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         if (!value.startDate) {
             setError('A date must be specified');
+            setLoading(false);
             return; 
         }
 
         if (timeDictParser(startTime) === '--:-- --' || timeDictParser(endTime) === '--:-- --') {
             setError('Both start and end times are required');
+            setLoading(false);
             return;
         }
 
@@ -54,6 +58,7 @@ export default function CreateEvent({ setCreate, currentMeet }) {
 
         if (startDuration > endDuration) {
             setError('Change your start time to be lower than your end time.');
+            setLoading(false);
             return;
         }
 
@@ -79,9 +84,11 @@ export default function CreateEvent({ setCreate, currentMeet }) {
         const responseData = await response.json();
         if (response.ok) {
             setCreate(false);
+            setLoading(false);
             router.push('/dashboard/' + router.query.meet_slug + '/attendance?' + new URLSearchParams({search: '', eventId: responseData.eventId }));
         } else {
             setError(responseData.error);
+            setLoading(false);
         }
         
     }
@@ -142,7 +149,10 @@ export default function CreateEvent({ setCreate, currentMeet }) {
                     </div>
                 )}
                 <div className="modal-action">
-                    <button className="btn btn-success" type="submit">Create</button>
+                    <button className="btn btn-success" type="submit">
+                        { editting && <span className="loading loading-spinner"></span>}
+                        Create
+                    </button>
                     <label className="btn btn-ghost" onClick={() => setCreate(false)}>Dismiss</label>
                 </div>
             </form>

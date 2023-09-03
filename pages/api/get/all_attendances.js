@@ -67,16 +67,17 @@ export default async function handler(req, res) {
                     const eventAttendances = attendance.attended ? ({
                         attendances: [...attendee.attendances, {...attendance, event: eventWithoutAttendances, meetId: meet.id, meetName: meet.name }],
                         missed: attendee.missed,
-                        eventsAttended: attendee.eventsAttended + 1
+                        eventsAttended: attendee.eventsAttended + 1,
+                        totalHours: attendee.totalHours + attendance.hours,
+                        totalTimeSubmitted: attendee.totalTimeSubmitted + attendance.submitted,
                     }) : ({
                         missed: [...attendee.missed, { event: eventWithoutAttendances, meetId: meet.id, meetName: meet.name, }],
                         attendances: attendee.attendances,
                         eventsNotAttended: attendee.eventsNotAttended + 1,
                     });
+                    
                     attendees[index] = {
                         ...attendee, ...eventAttendances, 
-                        totalHours: attendee.totalHours + attendance.hours,
-                        totalTimeSubmitted: attendee.totalTimeSubmitted + attendance.submitted,
                     }
                 }
             })
