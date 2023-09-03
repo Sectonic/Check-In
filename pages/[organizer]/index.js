@@ -197,7 +197,7 @@ export default function Organizer({ organizer, currentOrganizer }) {
                 </ul>
               </OutsideClickHandler>
           </div>
-          <div className="max-sm:hidden form-control w-full">
+          <div className="form-control w-full">
             <form className="input-group" onSubmit={searchHandler}>
               <input name="search" type="text" placeholder="Search Name/ID" className="input input-bordered w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
               <button className="btn btn-square btn-primary" type="submit">

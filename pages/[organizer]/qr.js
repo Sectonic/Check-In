@@ -50,33 +50,30 @@ export default function Page({ organizer }) {
             { loading ? (
                 <>  
                     <div className="mx-auto max-sm:px-4 w-full sm:w-1/2 form-control mt-4">
-                        <div className="input-group">
-                            <input name="search" type="text" placeholder="Search By Name/ID" className="input input-bordered w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <button className="btn btn-square btn-primary" type="button" onClick={() => getAttendees()}>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </button>
-                        </div>
+                        <input name="search" type="text" placeholder="Search By Name/ID" className="input input-bordered w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
                     <div className="flex justify-center gap-5 flex-wrap items-center p-5">
-                        {attendees.map(attendee => (
-                            <div className="p-5 bg-primary-content shadow-lg rounded-lg flex justify-center flex-col gap-2" key={attendee.specificId}>
-                                <div className="text-center -mb-1">{attendee.name}</div>
-                                <div className="font-bold text-center">{organizer.name}</div>
-                                <SVG
-                                    text={attendee.specificId}
-                                    options={{
-                                        level: 'L',
-                                        margin: 2,
-                                        scale: 5,
-                                        width: 150,
-                                        color: {
-                                        dark: '#000',
-                                        light: '#fff',
-                                        },
-                                    }}
-                                />
-                            </div>
-                        ))}
+                        {attendees.map((attendee, i) => {
+                            if (attendee.name.includes(search) || attendee.specificId.includes(search)) {
+                                return <div className="p-5 bg-primary-content shadow-lg rounded-lg flex justify-center flex-col gap-2" key={i}>
+                                    <div className="text-center -mb-1">{attendee.name}</div>
+                                    <div className="font-bold text-center">{organizer.name}</div>
+                                    <SVG
+                                        text={attendee.specificId}
+                                        options={{
+                                            level: 'L',
+                                            margin: 2,
+                                            scale: 5,
+                                            width: 150,
+                                            color: {
+                                            dark: '#000',
+                                            light: '#fff',
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            }
+                        })}
                     </div>
                 </>
             ) : (

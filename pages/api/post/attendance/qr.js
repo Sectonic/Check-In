@@ -41,7 +41,7 @@ export default ApiRoute(async function (req, res) {
   const currentMeet = await db.meet.findUnique({
     where: { id: meetId },
     include: {
-      reoccurances: true
+      reoccurances: true,
     }
   });
   const inTimeEvent = await db.event.findFirst({
@@ -126,6 +126,16 @@ export default ApiRoute(async function (req, res) {
       const newStartTime = dayjs().set('hour', startDict.hour).set('minute', startDict.minute).set('second', 0);
       const newEndTime = dayjs().set('hour', endDict.hour).set('minute', endDict.minute).set('second', 0);
 
+      const submitted = dayjs().diff(newStartTime, 'minute')
+      var hours = newEndTime.diff(newStartTime, 'hour');
+      if (hours === 0) {
+          hours = newEndTime.diff(newStartTime, 'minute') / 60;
+      }
+
+      const attendees = await db.attendee.findMany({
+        where: { meetId: currentMeet.id }
+      })
+
       const newEvent = await db.event.create({
         data: {
           name: `${dayjs().format('MM/DD/YYYY')} | ${newStartTime.format('hh:mm A')} - ${newEndTime.format('hh:mm A')}`,
@@ -133,22 +143,24 @@ export default ApiRoute(async function (req, res) {
           startTime: newStartTime.unix(),
           endTime: newEndTime.unix(),
           manual: currentMeet.manual,
-          qr: currentMeet.qr
+          qr: currentMeet.qr,
+          attendances: {
+            create: attendees.map(attendee => ({
+              attendeeId: attendee.id,
+              hours: Math.round(hours * 100) / 100
+            })
+          )}
         }
       });
 
-      const submitted = dayjs().diff(newStartTime, 'minute')
-      var hours = newEndTime.diff(newStartTime, 'hour');
-      if (hours === 0) {
-          hours = newEndTime.diff(newStartTime, 'minute') / 60;
-      }
-
-      await db.attendance.create({
+      await db.attendance.update({
+        where: {
+          eventId: newEvent.id,
+          attendeeId: attendee.id
+        },
         data: {
-          attendee: { connect: { id: attendee.id } },
-          event: { connect: { id: newEvent.id } },
+          attended: true,
           submitted,
-          hours: Math.round(hours * 100) / 100
         }
       });
 

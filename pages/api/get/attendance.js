@@ -29,6 +29,7 @@ export default async function handler(req, res) {
   }
 
   if (newEvent) {
+
     const startDict = JSON.parse(meet.startDict);
     const endDict = JSON.parse(meet.endDict);
     const startTime = dayjs().set('hour', checkDurationHours(startDict)).set('minute', startDict.minute).set('second', 0);
@@ -41,6 +42,20 @@ export default async function handler(req, res) {
       }
     });
     if (!event) {
+
+      const attendees = await db.attendee.findMany({
+        where: {
+          meets: {
+            some: { id: meet.id }
+          }
+        }
+      })
+
+      var hours = endTime.diff(startTime, 'hour');
+      if (hours === 0) {
+          hours = endTime.diff(startTime, 'minute') / 60;
+      }
+
       await db.event.create({
         data: {
           name: `${dayjs().format('MM/DD/YYYY')} | ${startTime.format('hh:mm A')} - ${endTime.format('hh:mm A')}`,
@@ -48,12 +63,17 @@ export default async function handler(req, res) {
           startTime: startTime.unix(),
           endTime: endTime.unix(),
           manual: meet.manual,
-          qr: meet.qr
+          qr: meet.qr,
+          attendances: {
+            create: attendees.map(attendee => ({
+              attendeeId: attendee.id,
+              hours: Math.round(hours * 100) / 100
+           })
+          )}
         }
       });
     }
   }
-  
 
   var events = await db.event.findMany({
     where: {
@@ -95,7 +115,8 @@ export default async function handler(req, res) {
   let notAttended = [];
 
   if (correctEventId !== 'undefined') {
-    attendance = await db.attendance.findMany({
+
+    const allAttendance = await db.attendance.findMany({
       where: {
         event: { id: Number(correctEventId) },
         attendee: { OR: [{ name: { contains: search } }, { specificId: { contains: search } }] },
@@ -103,13 +124,13 @@ export default async function handler(req, res) {
       include: { attendee: { select: { id: true, specificId: true, name: true } } },
     });
 
-    notAttended = await db.attendee.findMany({
-      where: {
-        meets: { some: { id: Number(meetId) } },
-        id: { notIn: attendance.map(i => i.attendee.id) },
-        OR: [{ name: { contains: search } }, { specificId: { contains: search } }]
-      },
-    });
+    allAttendance.forEach(att => {
+      if (att.attended) {
+        attendance.push(att)
+      } else {
+        notAttended.push(att)
+      }
+    })
   }
 
   const currentEvent = events.find(event => event.id === Number(correctEventId)) || futureEvents.find(event => event.id === Number(correctEventId)) || null;

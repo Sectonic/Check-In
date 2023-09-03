@@ -28,7 +28,11 @@ export const getServerSideProps = SsrRoute(
             }
         });
         const attendees = await db.attendee.findMany({
-            where: { organizer: {id: user.id} }
+            where: { organizer: {id: user.id} },
+            take: 5,
+            orderBy: {
+                id: 'desc'
+            }
         });
         const eventCount = await db.event.count({
             where: { meet: {organizer: {id: user.id} } }
@@ -43,28 +47,26 @@ export const getServerSideProps = SsrRoute(
         }
         const participation = Math.round((attendanceCount / totalAttendees()) * 100);
         return {
-            props: { meets, attendees, userId: user.id, eventCount, attendanceCount, participation }
+            props: { meets, oldAttendees: attendees, userId: user.id, eventCount, attendanceCount, participation }
         }
     }
 )
 
-export default function Dashboard({ meets, attendees, userId, eventCount, attendanceCount, participation }) {
+export default function Dashboard({ meets, oldAttendees, userId, eventCount, attendanceCount, participation }) {
     const [error, setError] = useState('');
     const [edit, setEdit] = useState(false);
     const [csvImport, setCsvImport] = useState(false);
+    const [attendees, setAttendees] = useState(oldAttendees);
     const [attendee, setAttendee] = useState({});
+    const [search, setSearch] = useState('');
     const nameInput = useRef(null);
     const idInput = useRef(null);
     const router = useRouter();
 
-    const refreshData = () => {
-        router.replace(router.asPath);
-    }
-
     const endEdit = () => {
         setEdit(false);
         setAttendee({});
-        refreshData();
+        searchHandler();
     }
 
     const getMeetType = (meet) => {
@@ -104,7 +106,7 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
 
         const response = await fetch('/api/post/attendee', options);
         if (response.ok) {
-            refreshData();
+            searchHandler();
         } else {
             const data = await response.json();
             setError(data);
@@ -117,14 +119,23 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
 
     const deleteAttendee = async (attendeeId) => {
         await fetch(`/api/delete/attendee?id=${attendeeId}`);
-        refreshData();
+        searchHandler();
+    }
+
+    const searchHandler = async (e = null) => {
+        if (e) {
+            e.preventDefault();
+        }
+        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search }));
+        const attendeeData = await attendeeReq.json();
+        setAttendees(attendeeData.attendees);
     }
 
     return (
         <>
             { edit && <EditAttendee endEdit={endEdit} attendee={attendee} setEdit={setEdit} setAttendee={setAttendee} />}
             { csvImport && <CsvImportPopup setCsvImport={setCsvImport} previousAttendees={attendees} />}
-            <div className="glass !bg-primary text-white p-6 rounded-xl">
+            <div className="!bg-primary text-white p-6 rounded-xl">
                 <div className="flex justify-end flex-col items-end">
                     <div className="text-3xl font-bold">
                         Aren't in an Organization?
@@ -132,7 +143,7 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
                     <div className="text-lg font-thin">
                         Join or create one now. Collaborate with others for perfect structure.
                     </div>
-                    <div className="mt-2 glass btn btn-lg text-white">
+                    <div className="mt-2 glass !bg-inherit btn btn-lg text-white">
                         Join Now
                     </div>
                 </div>
@@ -184,7 +195,7 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
                                         <div className="flex justify-between items-start">
                                             <div className="flex justify-start gap-4 items-end">
                                                 {meet.image ? <img className="rounded-xl w-16 h-16 object-cover" src={meet.image} /> : (
-                                                    <div className="avatar placeholder">
+                                                    <div className="static avatar placeholder">
                                                         <div className="bg-base-200 text-base-content rounded-xl w-16">
                                                             <span className="text-3xl">{meet.name.substring(0,1).toUpperCase()}{meet.name.substring(1,2)}</span>
                                                         </div>
@@ -261,8 +272,16 @@ export default function Dashboard({ meets, attendees, userId, eventCount, attend
                                 </div>
                             </div>
                         </div>
+                        <div className="my-2 mb-3 form-control w-full">
+                            <form className="input-group" onSubmit={searchHandler}>
+                            <input name="search" type="text" placeholder="Search Name/ID" className="input input-bordered w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
+                            <button className="btn btn-square btn-primary" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            </button>
+                            </form>
+                        </div>
                         <ul role="list">
-                            <div className="max-h-[350px] sm:max-h-[700px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
+                            <div className="max-h-[350px] sm:max-h-[600px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
                                 { attendees.length > 0 ? (
                                     <>
                                     {attendees.map((attendee, i) => (

@@ -35,7 +35,7 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
                     return (
                         <Link href={`/dashboard/${meet.id}/`} key={i}>
                             <li className="rounded-xl">
-                                <div className="tooltip tooltip-right p-2" data-tip={meet.name}>
+                                <div className="tooltip tooltip-right p-2 z-20" data-tip={meet.name}>
                                     {meet.image ? <div className='w-11 h-11 sm:w-12 sm:h-12'><img className="mask mask-circle w-full h-full object-cover" src={meet.image} /></div> : (
                                         <div className="avatar placeholder">
                                             <div className="bg-base-200 text-base-content rounded-full w-12">

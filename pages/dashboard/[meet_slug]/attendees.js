@@ -46,6 +46,7 @@ export default function Attendees({ attendees, meet }) {
   const router = useRouter();
   const [newInside, setNewInside] = useState([]);
   const [newOutside, setNewOutside] = useState([]);
+  const [search, setSearch] = useState('');
   const save = useRef(null)
 
   const addInside = (attendee) => {
@@ -106,13 +107,16 @@ export default function Attendees({ attendees, meet }) {
         <div className="btn btn-success btn-sm" onClick={updateMeet} ref={save}>Save</div>
       </div>
       <div className="text-sm mt-2">Click on an attendee to move them from one side to the other.</div>
+      <div className="mx-auto w-full form-control mt-4">
+        <input name="search" type="text" placeholder="Search By Name/ID" className="input input-bordered w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
+      </div>
       <div className="flex justify-center gap-4 mt-3">
         <div className="basis-1/2">
           <div className="text-xl sm:text-3xl font-semibold mb-2">Inside Meet</div>
           <hr/>
           <div className="glass !bg-primary mt-2 p-2 flex flex-col gap-2 rounded-xl">
             {attendees.inside && attendees.inside.map((attendee, i) => {
-              if (!newOutside.some(e => e.specificId === attendee.specificId)) {
+              if (!newOutside.some(e => e.specificId === attendee.specificId) && (attendee.name.includes(search) || attendee.specificId.includes(search))) {
                 return (
                   <div key={i} className="p-3 bg-white hover:bg-white/50 transition-all rounded-lg w-full cursor-pointer" onClick={() => addOutside(attendee)}>
                     {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
@@ -120,11 +124,15 @@ export default function Attendees({ attendees, meet }) {
                 )
               }
             })}
-            {newInside.map((attendee, i) => (
-              <div key={i + attendees.inside.length} className="p-3 bg-white hover:bg-white/50 transition-all rounded-lg w-full cursor-pointer" onClick={() => addOutside(attendee)}>
-                {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
-              </div>
-            ))}
+            {newInside.map((attendee, i) => {
+              if (attendee.name.includes(search) || attendee.specificId.includes(search)) {
+                return (
+                  <div key={i + attendees.inside.length} className="p-3 bg-white hover:bg-white/50 transition-all rounded-lg w-full cursor-pointer" onClick={() => addOutside(attendee)}>
+                    {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
+                  </div>
+                )
+              }
+            })}
           </div>
         </div>
         <div className="basis-1/2">
@@ -132,7 +140,7 @@ export default function Attendees({ attendees, meet }) {
           <hr/>
           <div className="mt-2 p-2 flex flex-col gap-2 bg-primary-content rounded-xl">
             {attendees.outside && attendees.outside.map((attendee, i) => {
-              if (!newInside.some(e => e.specificId === attendee.specificId)) {
+              if (!newInside.some(e => e.specificId === attendee.specificId) && (attendee.name.includes(search) || attendee.specificId.includes(search))) {
                 return (
                   <div key={i} className="p-3 bg-white hover:bg-primary/30 transition-all rounded-lg w-full cursor-pointer" onClick={() => addInside(attendee)}>
                     {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
@@ -140,11 +148,15 @@ export default function Attendees({ attendees, meet }) {
                 )
               }
             })}
-            {newOutside.map((attendee, i) => (
-              <div key={i + attendees.outside.length} className="p-3 bg-white hover:bg-primary/30 transition-all rounded-lg w-full cursor-pointer" onClick={() => addInside(attendee)}>
-                {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
-              </div>
-            ))}
+            {newOutside.map((attendee, i) => {
+              if (attendee.name.includes(search) || attendee.specificId.includes(search)) {
+                return (
+                  <div key={i + attendees.outside.length} className="p-3 bg-white hover:bg-primary/30 transition-all rounded-lg w-full cursor-pointer" onClick={() => addInside(attendee)}>
+                    {attendee.name} <span className="text-xs font-thin">- {attendee.specificId}</span>
+                  </div>
+                )
+              }
+            })}
           </div>
         </div>
       </div>

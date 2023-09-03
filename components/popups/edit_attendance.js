@@ -1,22 +1,18 @@
 import { useRef, useState } from "react";
 
-export default function EditAttendance({ attendance, currentEvent, setEdit, endEdit }) {
-    const attendee = 'attendee' in attendance ? attendance.attendee : attendance;
+export default function EditAttendance({ attendance, setEdit, endEdit }) {
+    const attendee = attendance;
     const [error, setError] = useState('');
-    const [attended, setAttended] = useState(attendance.attendee ? 'Attended' : 'Not Attended')
+    const [attended, setAttended] = useState(attendance.attended ? 'Attended' : 'Not Attended')
     const late = useRef(null);
 
     const editHandler = async (e) => {
         e.preventDefault();
 
         const data = {
-            attendanceId: attendance.attendee ? attendance.id : null,
+            attendanceId: attendance.id,
             attendance: e.target.attendance.value,
             late: Number(e.target.late.value),
-            eventId: currentEvent.id,
-            attendeeId: attendee.id,
-            startTime: currentEvent.startTime,
-            endTime: currentEvent.endTime
         };
 
         const options = {
@@ -66,7 +62,7 @@ export default function EditAttendance({ attendance, currentEvent, setEdit, endE
                     <label className="label">
                         <span className="label-text">Submitted In (MIN)</span>
                     </label>
-                    <input name="late" ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" defaultValue={attendance.submitted} />
+                    <input name="late" ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" defaultValue={attendance.attended ? attendance.submitted : null} />
                 </div>
                 <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
                     *To mark as Tardy, put the submitted in time higher than the meet tardy time (if even enabled)

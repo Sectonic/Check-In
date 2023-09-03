@@ -6,8 +6,21 @@ import * as dayjs from 'dayjs';
 import EditAttendance from "@/components/popups/edit_attendance";
 import CreateEvent from "@/components/popups/create_event";
 import EditEvent from '@/components/popups/edit_event';
+import BatchEditAttendance from "@/components/popups/batchedit_attendance";
+import { SsrRoute } from "@/lib/config";
 
-export default function Attendance({ currentMeet }) {
+export const getServerSideProps = SsrRoute(
+  async function getServerSideProps({ req }) {
+      const user = req.session.user;
+      return {
+          props: { 
+            organizerId: user.id
+          }
+      }
+  }
+)
+
+export default function Attendance({ currentMeet, organizerId }) {
   const router = useRouter();
   const [searchValue, setSearch] = useState('');
   const [events, setEvents] = useState([]);
@@ -16,6 +29,7 @@ export default function Attendance({ currentMeet }) {
   const [notAttended, setNotAttended] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [edit, setEdit] = useState(null);
+  const [batchEdit, setBatchEdit] = useState(false);
   const [create, setCreate] = useState(false);
   const [includeAbsent, setIncludeAbsent] = useState(true);
   const [eventEdit, setEventEdit] = useState(false);
@@ -71,6 +85,7 @@ export default function Attendance({ currentMeet }) {
 
   const endEdit = () => {
     setEdit(null);
+    setBatchEdit(false);
     getAttendanceData();
   }
 
@@ -88,12 +103,14 @@ export default function Attendance({ currentMeet }) {
 
   return (
       <>  
-        { edit && <EditAttendance setEdit={setEdit} attendance={edit} endEdit={endEdit} currentEvent={currentEvent}  /> }
+        { edit && <EditAttendance setEdit={setEdit} attendance={edit} endEdit={endEdit} /> }
         { create && <CreateEvent setCreate={setCreate} currentMeet={currentMeet} /> }
         { eventEdit && <EditEvent event={event} setEventEdit={setEventEdit} currentMeet={currentMeet} />}
-        <div className="flex justify-start items-end gap-5">
+        { batchEdit && <BatchEditAttendance event={currentEvent} organizerId={organizerId} setEdit={setBatchEdit} endEdit={endEdit} meetId={currentMeet.id}  /> }
+        <div className="flex justify-start items-end gap-3">
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}
+          { currentEvent !== null && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setBatchEdit(true) } >Batch Attendance</div>}
         </div>
         <div className="p-2 mt-3 mb-2 flex max-sm:justify-between gap-3 bg-base-200 rounded-lg">
           <div className="dropdown min-w-max" ref={dropdown}>
@@ -134,7 +151,7 @@ export default function Attendance({ currentMeet }) {
           </div>
           <div className="dropdown dropdown-end w-max">
             <label tabIndex={0} className="btn btn-ghost ">Filters</label>
-            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-20">
               <div className="form-control p-2">
                 <label className="cursor-pointer label">
                   <span className="label-text">Include Absent</span> 
@@ -198,9 +215,9 @@ export default function Attendance({ currentMeet }) {
                 {includeAbsent && notAttended.map(row => (
                   <tr>
                     <th>
-                      {row.name}
+                      {row.attendee.name}
                       <br/>
-                      <span className="text-[11px] font-normal">{row.specificId}</span>
+                      <span className="text-[11px] font-normal">{row.attendee.name}</span>
                     </th>
                     <td><span className="badge badge-error font-semibold">Absent</span></td>
                     <td>--</td>
