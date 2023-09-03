@@ -27,7 +27,7 @@ const EventPicker = ({ setEvent, setEventEdit, events, setEvents, currentEvent, 
                 readOnly={true} 
                 popoverDirection="down"
             /> 
-            <div className='eventMenuScroll max-h-52 overflow-y-scroll w-full flex flex-col gap-2'>
+            <div className='eventMenuScroll max-h-52 overflow-y-auto w-full flex flex-col gap-2'>
                 {events.map(event => (
                     <li>
                         <div className={`p-0 text-sm flex justify-between ${event.id === currentEvent?.id ? 'bg-primary text-white' : ''}`}>
