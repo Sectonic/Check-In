@@ -38,10 +38,10 @@ export const getServerSideProps = SsrRoute(
             }
         });
         const eventCount = await db.event.count({
-            where: { meet: {organizer: {id: user.id} } }
+            where: { meet: { organizer: { id: user.id } } }
         });
         const attendanceCount = await db.attendance.count({
-            where: { attendee: {organizer: {id: user.id}, attended: true } }
+            where: { attendee: { organizer: { id: user.id }}, attended: true }
         });
         const totalAttendees = () => {
             var total = 0;
