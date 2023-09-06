@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const CsvImportPopup = ({ setCsvImport, previousAttendees }) => {
+const CsvImportPopup = ({ setCsvImport }) => {
     const [csv, setCsv] = useState([]);
     const [cols, setCols] = useState(false);
     const [error, setError] = useState('');
@@ -17,6 +17,7 @@ const CsvImportPopup = ({ setCsvImport, previousAttendees }) => {
                 const text = await response.text();
                 const lines = text.split("\n");
                 const data = lines.map((line) => line.split(",").map(field => field.trim()));
+                console.log(lines, data);
                 setCsv(data);
                 setCols(true);
             } catch (error) {
@@ -49,7 +50,6 @@ const CsvImportPopup = ({ setCsvImport, previousAttendees }) => {
                 const nameIndex = csv[0].indexOf(e.target.name.value);
                 return { name: row[nameIndex], id: idIndex !== null ? row[idIndex] : null };
             }),
-            previousAttendees
         };
 
         await fetch('/api/post/batch_attendee', {
@@ -64,7 +64,7 @@ const CsvImportPopup = ({ setCsvImport, previousAttendees }) => {
         <div className="modal modal-open modal-bottom sm:modal-middle">
             <div className="modal-box">
                 <h3 className="font-bold text-xl">Import Attendees</h3>
-                <div className="my-1 bg-base-200 p-2 rounded-lg text-xs">*Be aware that this will remove all current attendees and attendances</div>
+                <div className="my-1 bg-base-200 p-2 rounded-lg text-xs">*Be aware that this will remove all current attendees</div>
                 { !cols ? (
                     <>
                         <div className="mx-auto form-control w-full mt-4">

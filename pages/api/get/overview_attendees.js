@@ -1,13 +1,13 @@
 import db from "@/lib/prisma";
 
 export default async function handler(req, res) {
-    const { organizerId, search } = req.query;
+    const { organizerId, search, all } = req.query;
 
     const searchQuery = search === '' ? { } : { OR: [
         { name: { contains: search } },
         { specificId: { contains: search } }
     ] };
-    const takeQuery = search === '' ? { take: 5 } : {};
+    const takeQuery = all === 'true' ? {} : (search === '' ? { take: 5 } : {});
 
     const attendees = await db.attendee.findMany({
         where: {

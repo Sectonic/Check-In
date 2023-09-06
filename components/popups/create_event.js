@@ -150,7 +150,7 @@ export default function CreateEvent({ setCreate, currentMeet }) {
                 )}
                 <div className="modal-action">
                     <button className="btn btn-success" type="submit">
-                        { editting && <span className="loading loading-spinner"></span>}
+                        { loading && <span className="loading loading-spinner"></span>}
                         Create
                     </button>
                     <label className="btn btn-ghost" onClick={() => setCreate(false)}>Dismiss</label>

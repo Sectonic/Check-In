@@ -60,6 +60,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
     const [edit, setEdit] = useState(false);
     const [csvImport, setCsvImport] = useState(false);
     const [attendees, setAttendees] = useState(oldAttendees);
+    const [all, setAll] = useState(false);
     const [attendee, setAttendee] = useState({});
     const [search, setSearch] = useState('');
     const nameInput = useRef(null);
@@ -122,7 +123,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
 
     const deleteAttendee = async (attendeeId) => {
         await fetch(`/api/delete/attendee?id=${attendeeId}`);
-        searchHandler();
+        router.reload();
     }
 
     const searchHandler = async (e = null) => {
@@ -131,13 +132,25 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         }
         const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search }));
         const attendeeData = await attendeeReq.json();
+        console.log(attendeeData.attendees.length);
+        setAll(true);
+        if (search === '') {
+            setAll(false);
+        }
         setAttendees(attendeeData.attendees);
+    }
+
+    const getAllAttendees = async () => {
+        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search, all: true }));
+        const attendeeData = await attendeeReq.json();
+        setAttendees(attendeeData.attendees);
+        setAll(true);
     }
 
     return (
         <>
             { edit && <EditAttendee endEdit={endEdit} attendee={attendee} setEdit={setEdit} setAttendee={setAttendee} />}
-            { csvImport && <CsvImportPopup setCsvImport={setCsvImport} previousAttendees={attendees} />}
+            { csvImport && <CsvImportPopup setCsvImport={setCsvImport} />}
             <div className="!bg-primary text-white p-6 rounded-xl">
                 <div className="flex justify-end flex-col items-end">
                     <div className="text-3xl font-bold">
@@ -316,6 +329,9 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                                         </div>
                                         </li>
                                     ))}
+                                    { !all && <li className="p-3 bg-base-100 rounded-xl shadow-sm text-center cursor-pointer hover:bg-base-300" onClick={getAllAttendees}>
+                                        Show All
+                                    </li>}
                                     </>
                                 ) : (
                                     <div className="p-6 flex justify-center items-center bg-base-100 opacity-50 rounded-xl">
