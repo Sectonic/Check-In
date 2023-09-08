@@ -65,25 +65,23 @@ export default ApiRoute(async function (req, res) {
       }
     });
 
-    if (checkAttendance) {
+    if (checkAttendance.attended) {
       res.status(409).send({ message: 'You have already submitted attendance @' + attendeeId });
       return;
     }
 
     const submitted = dayjs().diff(dayjs.unix(inTimeEvent.startTime), 'minute');
-    var hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'hour');
-    if (hours === 0) {
-      hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'minute') / 60;
-    }
 
-    await db.attendance.create({
+    await db.attendance.updateMany({
+      where: {
+        eventId: inTimeEvent.id,
+        attendeeId: attendee.id
+      },
       data: {
-        attendee: { connect: { id: attendee.id } },
-        event: { connect: { id: inTimeEvent.id } },
-        submitted,
-        hours: Math.round(hours * 100) / 100
+        attended: true,
+        submitted
       }
-    });
+    })
 
     res.status(200).json({ message: attendee.name + "'s attendance has been recorded @" + attendeeId});
   } else if (currentMeet.reoccurance) {
@@ -146,6 +144,8 @@ export default ApiRoute(async function (req, res) {
           qr: currentMeet.qr,
           attendances: {
             create: attendees.map(attendee => ({
+              name: attendee.name,
+              specificId: attendee.specificId,
               attendeeId: attendee.id,
               hours: Math.round(hours * 100) / 100
             })
@@ -153,7 +153,7 @@ export default ApiRoute(async function (req, res) {
         }
       });
 
-      await db.attendance.update({
+      await db.attendance.updateMany({
         where: {
           eventId: newEvent.id,
           attendeeId: attendee.id

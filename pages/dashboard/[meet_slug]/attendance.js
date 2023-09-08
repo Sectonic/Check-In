@@ -197,9 +197,9 @@ export default function Attendance({ currentMeet, organizerId }) {
                 {attendance.map(row => (
                   <tr>
                     <th>
-                      {row.attendee.name}
+                      {row.name}
                       <br/>
-                      <span className="text-[11px] font-normal">{row.attendee.specificId}</span>
+                      <span className="text-[11px] font-normal">{row.specificId}</span>
                     </th>
                     <td>
                       {row.submitted > (currentMeet.tardy || row.submitted + 1) ? (
@@ -215,9 +215,9 @@ export default function Attendance({ currentMeet, organizerId }) {
                 {includeAbsent && notAttended.map(row => (
                   <tr>
                     <th>
-                      {row.attendee.name}
+                      {row.name}
                       <br/>
-                      <span className="text-[11px] font-normal">{row.attendee.name}</span>
+                      <span className="text-[11px] font-normal">{row.specificId}</span>
                     </th>
                     <td><span className="badge badge-error font-semibold">Absent</span></td>
                     <td>--</td>

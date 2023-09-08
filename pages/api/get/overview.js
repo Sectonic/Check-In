@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         endTime: { lt: endTime }
       },
       include: {
-        attendances: { select: { submitted: true } },
+        attendances: { select: { submitted: true, attended: true } },
         meet: {
           select: {
             _count: { select: { attendees: true } }
@@ -65,12 +65,14 @@ export default async function handler(req, res) {
     const counts = {};
     for (const event of events) {
       for (const attendance of event.attendances) {
-        piePoints[attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 2 : 0].value++;
+        if (attendance.attended) {
+          piePoints[attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 2 : 0].value++;
+        } else {
+          piePoints[1].value++;
+        }
         const num = attendance.submitted;
         counts[num] = (counts[num] || 0) + 1;
       }
-      const absentValue = event.meet._count.attendees - event._count.attendances;
-      piePoints[1].value += absentValue
     }
   
     const maxEventTime = () => {

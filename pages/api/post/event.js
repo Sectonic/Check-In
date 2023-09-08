@@ -35,6 +35,8 @@ export default ApiRoute(
             attendances: {
                 create: meet.attendees.map(attendee => ({
                     attendeeId: attendee.id,
+                    name: attendee.name,
+                    specificId: attendee.specificId,
                     hours: Math.round(hours * 100) / 100
                 }))
             },

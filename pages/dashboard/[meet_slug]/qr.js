@@ -33,7 +33,7 @@ export default function QR({ meet }) {
       messageData.current.innerHTML = responseData.message;
   
       setTimeout(() => {
-        if (messageData.current.innerHTML === responseData.message) {
+        if (messageData.current && messageData.current.innerHTML === responseData.message) {
           messageData.current.innerHTML = "No Input";
           messageType.current.className = "alert mb-3 justify-start";
         }

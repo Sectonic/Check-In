@@ -78,7 +78,7 @@ export default function Attendees({ attendees, meet }) {
     save.current.className = 'btn btn-success btn-sm loading';
 
     const data = {
-      inside: newInside.map(e => e.id),
+      inside: newInside.map(e => ({id: e.id, name: e.name, specificId: e.specificId})),
       outside: newOutside.map(e => e.id),
       meet: meet
     }

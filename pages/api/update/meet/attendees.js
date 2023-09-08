@@ -45,10 +45,11 @@ export default ApiRoute(
     }
 
     if (inside.length > 0) {
+
       updatePromises.push(
-        ...inside.map(id => 
+        ...inside.map(attendee => 
           db.attendee.update({
-            where: { id },
+            where: { id: attendee.id },
             data: {
               meets: {
                 connect: [{ id: Number(meet) }]
@@ -70,13 +71,15 @@ export default ApiRoute(
         }
 
         for (let j = 0; j < inside.length; j++) {
-          const attendeeId = inside[j];
+          const attendee = inside[j];
           attendeesPromises.push(
             db.attendance.create({
               data: {
-                attendee: { connect: { id: attendeeId } },
+                attendee: { connect: { id: attendee.id } },
                 event: { connect: { id: futureEvent.id } },
-                hours: Math.round(hours * 100) / 100
+                hours: Math.round(hours * 100) / 100,
+                name: attendee.name,
+                specificId: attendee.specificId
               }
             })
           );

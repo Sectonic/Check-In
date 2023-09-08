@@ -89,8 +89,10 @@ model Attendee {
 
 model Attendance {
   id Int @id @default(autoincrement())
-  attendee Attendee @relation(fields: [attendeeId], references: [id])
-  attendeeId Int
+  attendee Attendee? @relation(fields: [attendeeId], references: [id])
+  attendeeId Int?
+  name String
+  specificId String
   attended Boolean @default(false)
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int

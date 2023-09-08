@@ -67,6 +67,8 @@ export default async function handler(req, res) {
           attendances: {
             create: attendees.map(attendee => ({
               attendeeId: attendee.id,
+              name: attendee.name,
+              specificId: attendee.specificId,
               hours: Math.round(hours * 100) / 100
            })
           )}
@@ -119,9 +121,8 @@ export default async function handler(req, res) {
     const allAttendance = await db.attendance.findMany({
       where: {
         event: { id: Number(correctEventId) },
-        attendee: { OR: [{ name: { contains: search } }, { specificId: { contains: search } }] },
+        OR: [{ name: { contains: search } }, { specificId: { contains: search } }]
       },
-      include: { attendee: { select: { id: true, specificId: true, name: true } } },
     });
 
     allAttendance.forEach(att => {

@@ -110,7 +110,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
 
         const response = await fetch('/api/post/attendee', options);
         if (response.ok) {
-            searchHandler();
+            router.reload();
         } else {
             const data = await response.json();
             setError(data);
