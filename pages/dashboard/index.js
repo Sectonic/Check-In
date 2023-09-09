@@ -150,7 +150,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
     return (
         <>
             { edit && <EditAttendee endEdit={endEdit} attendee={attendee} setEdit={setEdit} setAttendee={setAttendee} />}
-            { csvImport && <CsvImportPopup setCsvImport={setCsvImport} />}
+            { csvImport && <CsvImportPopup setCsvImport={setCsvImport} oldAttendees={attendees} />}
             <div className="!bg-primary text-white p-6 rounded-xl">
                 <div className="flex justify-end flex-col items-end">
                     <div className="text-3xl font-bold">

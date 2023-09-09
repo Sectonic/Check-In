@@ -14,31 +14,33 @@ export default ApiRoute(
             return;
         }
         
-        const { newAttendees } = req.body;
+        const { newAttendees, oldAttendees } = req.body;
 
-        const allSpecificIds = [];
-
-        await db.attendee.deleteMany({ where: { organizer: { id: user.id } } });
+        const dontDelete = [];
 
         await db.attendee.createMany({
             data: newAttendees.map(attendee => {
                 const { name, id } = attendee;
                 if (name) {
-                    var checkedNewId = false;
-                    var newId = id;
-                    while (!id && !checkedNewId) {
-                        newId = randomString(10);
-                        if (!allSpecificIds.includes(newId)) {
-                            checkedNewId = true;
+                    dontDelete.push(id);
+                    if (!oldAttendees.some(oldAttendee => name === oldAttendee.name && id === oldAttendee.specificId)) {
+                        var checkedNewId = false;
+                        var newId = id;
+                        while (!id && !checkedNewId) {
+                            newId = randomString(10);
+                            if (!dontDelete.includes(newId)) {
+                                checkedNewId = true;
+                            }
                         }
-                    }
-                    allSpecificIds.push(newId);
-                    return {
-                        name, specificId: newId, organizerId: user.id
+                        return {
+                            name, specificId: newId, organizerId: user.id
+                        }
                     }
                 }
             })
         });
+
+        await db.attendee.deleteMany({ where: { organizer: { id: user.id }, id: { notIn: dontDelete } } });
         
         res.status(200).send({message: 'Attendance successfully recorded'});
     }

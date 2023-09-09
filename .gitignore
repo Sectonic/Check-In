@@ -36,3 +36,5 @@ next-env.d.ts
 
 prisma/database.db
 .env
+lib/test.js
+lib/*.csv

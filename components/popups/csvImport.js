@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const CsvImportPopup = ({ setCsvImport }) => {
+const CsvImportPopup = ({ setCsvImport, oldAttendees }) => {
     const [csv, setCsv] = useState([]);
     const [cols, setCols] = useState(false);
     const [error, setError] = useState('');
@@ -17,7 +17,6 @@ const CsvImportPopup = ({ setCsvImport }) => {
                 const text = await response.text();
                 const lines = text.split("\n");
                 const data = lines.map((line) => line.split(",").map(field => field.trim()));
-                console.log(lines, data);
                 setCsv(data);
                 setCols(true);
             } catch (error) {
@@ -50,6 +49,7 @@ const CsvImportPopup = ({ setCsvImport }) => {
                 const nameIndex = csv[0].indexOf(e.target.name.value);
                 return { name: row[nameIndex], id: idIndex !== null ? row[idIndex] : null };
             }),
+            oldAttendees
         };
 
         await fetch('/api/post/batch_attendee', {

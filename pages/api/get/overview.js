@@ -53,11 +53,21 @@ export default async function handler(req, res) {
     }
   
     const graphPoints = events.map(event => {
-      const all_attendees = event.meet._count.attendees;
       const name = dayjs.unix(event.startTime).format('MMM D');
-      const tardy = event.attendances.reduce((count, attendance) => count + (attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 1 : 0), 0);
-      const present = event._count.attendances - tardy;
-      const absent = all_attendees - (present + tardy);
+      var present = 0;
+      var tardy = 0;
+      var absent = 0;
+      event.attendances.forEach(attendance => {
+        if (attendance.attended) {
+          if (attendance.submitted > (meet.tardy || attendance.submitted + 1)) {
+            tardy++;
+          } else {
+            present++;
+          }
+        } else {
+          absent++;
+        }
+      })
       return { name, tardy, present, absent };
     });
   
