@@ -58,19 +58,21 @@ export default function Page({ organizer }) {
                                 return <div className="p-5 bg-primary-content shadow-lg rounded-lg flex justify-center flex-col gap-2" key={i}>
                                     <div className="text-center -mb-1">{attendee.name}</div>
                                     <div className="font-bold text-center">{organizer.name}</div>
-                                    <SVG
-                                        text={attendee.specificId}
-                                        options={{
-                                            level: 'L',
-                                            margin: 2,
-                                            scale: 5,
-                                            width: 150,
-                                            color: {
-                                            dark: '#000',
-                                            light: '#fff',
-                                            },
-                                        }}
-                                    />
+                                    <div className="mx-auto">
+                                        <SVG
+                                            text={attendee.specificId}
+                                            options={{
+                                                level: 'L',
+                                                margin: 2,
+                                                scale: 5,
+                                                width: 150,
+                                                color: {
+                                                dark: '#000',
+                                                light: '#fff',
+                                                },
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             }
                         })}
