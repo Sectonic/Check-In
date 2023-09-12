@@ -132,7 +132,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         }
         const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search }));
         const attendeeData = await attendeeReq.json();
-        console.log(attendeeData.attendees.length);
         setAll(true);
         if (search === '') {
             setAll(false);

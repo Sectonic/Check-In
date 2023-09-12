@@ -21,6 +21,7 @@ export default async function handler(req, res) {
             id: 'desc'
         },
         select: {
+            id: true,
             name: true,
             specificId: true
         }
