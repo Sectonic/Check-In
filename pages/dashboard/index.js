@@ -113,7 +113,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
             router.reload();
         } else {
             const data = await response.json();
-            setError(data);
+            setError(data.error);
         }
 
         nameInput.current.value = '';

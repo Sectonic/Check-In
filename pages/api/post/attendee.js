@@ -16,7 +16,8 @@ export default ApiRoute(
         const { name, id } = req.body;
         const usedName = !!await db.attendee.findFirst({
             where: {
-                name: name
+                name: name,
+                organizer: { id: user.id }
             }
         });
         if (usedName) {
@@ -36,7 +37,8 @@ export default ApiRoute(
         if (id) {
             const usedId = !!await db.attendee.findFirst({
                 where: {
-                    specificId: id
+                    specificId: id,
+                    organizer: { id: user.id }
                 }
             });
             if (usedId) {

@@ -18,12 +18,12 @@ export default ApiRoute(
             organization = true;
         } else {
             const organizerExists = await db.organizer.findFirst({
-            where: { email },
-            select: {
-                id: true,
-                password: true,
-                meets: { select: { id: true } },
-            },
+                where: { email },
+                select: {
+                    id: true,
+                    password: true,
+                    meets: { select: { id: true } },
+                },
             });
 
             if (organizerExists) {
