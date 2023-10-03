@@ -33,7 +33,7 @@ export default ApiRoute(async function (req, res) {
   });
 
   if (!attendee) {
-    res.status(409).send({ message: 'Your QR Code is invalid: ' + attendeeId });
+    res.status(409).send({ message: 'Your QR Code is invalid @' + attendeeId });
     return;
   }
 
@@ -66,7 +66,7 @@ export default ApiRoute(async function (req, res) {
     });
 
     if (checkAttendance.attended) {
-      res.status(409).send({ message: 'You have already submitted attendance @' + attendeeId });
+      res.status(200).send({ message: 'You have already submitted attendance @' + attendeeId });
       return;
     }
 

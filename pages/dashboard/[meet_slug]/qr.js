@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { QrReader } from "react-qr-reader";
 import db from '@/lib/prisma';
+import audio from '@/public/success_sound.mp3';
 
 export const getServerSideProps = async ({ params }) => {
   const currentMeet = await db.meet.findUnique({ where: { id: Number(params.meet_slug) } });
@@ -11,6 +12,8 @@ export const getServerSideProps = async ({ params }) => {
 }
 
 export default function QR({ meet }) {
+  const success_audio = new Audio(audio);
+
   const messageData = useRef(null);
   const messageType = useRef(null);
 
@@ -29,6 +32,9 @@ export default function QR({ meet }) {
       }
       const response = await fetch('/api/post/attendance/qr', options);
       const responseData = await response.json();
+      if (response.ok && responseData.message.split("@")[0] !== "You have already submitted attendance ") {
+        success_audio.play();
+      }
       messageType.current.className = `alert mb-3 justify-start ${response.ok ? 'alert-success' : 'alert-error'}`;
       messageData.current.innerHTML = responseData.message;
   
@@ -37,7 +43,7 @@ export default function QR({ meet }) {
           messageData.current.innerHTML = "No Input";
           messageType.current.className = "alert mb-3 justify-start";
         }
-      }, 3000)
+      }, 1500)
     }
   }
 

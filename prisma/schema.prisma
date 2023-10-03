@@ -29,9 +29,18 @@ model Organizer {
   org Organization? @relation(fields: [orgId], references: [id])
   orgId Int?
   meets Meet[]
+  // tags Tag[]
   attendees Attendee[]
   @@index([orgId])
 }
+
+// model Tag {
+//   id Int @id @default(autoincrement())
+//   name String
+//   organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+//   organizerId Int
+//   @@index([organizerId])
+// }
 
 model Meet {
   id Int @id @default(autoincrement())
@@ -44,6 +53,7 @@ model Meet {
   qr Boolean @default(false)
   image String?
   imageId String?
+  // creator Boolean @default(false)
   organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   organizerId Int
   tardy Int?
@@ -83,6 +93,7 @@ model Attendee {
   organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   organizerId Int
   meets Meet[]
+  // tag String? 
   attendances Attendance[]
   @@index([organizerId])
 }
