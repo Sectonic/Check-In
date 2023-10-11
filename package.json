@@ -39,7 +39,7 @@
     "use-sound": "^4.0.1"
   },
   "devDependencies": {
-    "daisyui": "^3.6.1",
+    "daisyui": "^3.9.2",
     "file-loader": "^6.2.0"
   }
 }
