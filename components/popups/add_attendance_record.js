@@ -42,12 +42,12 @@ export default function AddAttendanceRecord({ organizerId, setEdit, endEdit, mee
 
         const response = await fetch('/api/post/attendance_record', options);
         if (response.ok) {
-            setEditting(false);
             endEdit();
         } else {
             const responseData = await response.json();
             setError(responseData.error);
         }
+        setEditting(false);
 
     }
 
