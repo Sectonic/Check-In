@@ -26,6 +26,11 @@ export default function EditAttendance({ attendance, setEdit, endEdit }) {
 
     }
 
+    const deleteRecord = async () => {
+        await fetch('/api/delete/attendance?' + new URLSearchParams({ attendanceId: attendance.id }));
+        endEdit();
+    }
+
     const selectHandler = (e) => {
         setAttended(e.target.value);
         if (e.target.value === 'Attended' && !late.current.value) {
@@ -74,6 +79,7 @@ export default function EditAttendance({ attendance, setEdit, endEdit }) {
                     </div>
                 )}
                 <div className="modal-action">
+                    <button className="btn btn-error" type="button" onClick={deleteRecord}>Delete Record</button>
                     <button className="btn btn-success" type="submit">Edit</button>
                     <label className="btn btn-ghost" onClick={() => {
                         setEdit(null);

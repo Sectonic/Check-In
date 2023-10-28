@@ -8,6 +8,7 @@ import CreateEvent from "@/components/popups/create_event";
 import EditEvent from '@/components/popups/edit_event';
 import BatchEditAttendance from "@/components/popups/batchedit_attendance";
 import { SsrRoute } from "@/lib/config";
+import AddAttendanceRecord from "@/components/popups/add_attendance_record";
 
 export const getServerSideProps = SsrRoute(
   async function getServerSideProps({ req }) {
@@ -30,6 +31,7 @@ export default function Attendance({ currentMeet, organizerId }) {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [edit, setEdit] = useState(null);
   const [batchEdit, setBatchEdit] = useState(false);
+  const [addRecord, setAddRecord] = useState(false);
   const [create, setCreate] = useState(false);
   const [includeAbsent, setIncludeAbsent] = useState(true);
   const [eventEdit, setEventEdit] = useState(false);
@@ -86,6 +88,7 @@ export default function Attendance({ currentMeet, organizerId }) {
   const endEdit = () => {
     setEdit(null);
     setBatchEdit(false);
+    setAddRecord(false);
     getAttendanceData();
   }
 
@@ -107,9 +110,11 @@ export default function Attendance({ currentMeet, organizerId }) {
         { create && <CreateEvent setCreate={setCreate} currentMeet={currentMeet} /> }
         { eventEdit && <EditEvent event={event} setEventEdit={setEventEdit} currentMeet={currentMeet} />}
         { batchEdit && <BatchEditAttendance event={currentEvent} organizerId={organizerId} setEdit={setBatchEdit} endEdit={endEdit} meetId={currentMeet.id}  /> }
+        { addRecord && <AddAttendanceRecord event={currentEvent} meetId={currentMeet.id} organizerId={organizerId} setEdit={setAddRecord} endEdit={endEdit} /> }
         <div className="flex justify-start items-end gap-3">
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}
+          { currentEvent !== null && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setAddRecord(true)}>Add Record</div>}
           { currentEvent !== null && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setBatchEdit(true) } >Batch Attendance</div>}
         </div>
         <div className="p-2 mt-3 mb-2 flex max-sm:justify-between gap-3 bg-base-200 rounded-lg">
