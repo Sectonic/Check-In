@@ -9,6 +9,7 @@ export default function Page({ meet }) {
     const success_audio = new Audio(audio);
     const messageData = useRef(null);
     const messageType = useRef(null);
+    const idInput = useRef(null);
 
     const formSubmit = async (e) => {
         e.preventDefault();
@@ -33,6 +34,7 @@ export default function Page({ meet }) {
             }
             messageType.current.className = `alert mb-3 max-w-[500px] mt-2 ${response.ok ? 'alert-success' : 'alert-error'}`;
             messageData.current.innerHTML = responseData.message;
+            idInput.current.value = "";
         
             setTimeout(() => {
               if (messageData.current && messageData.current.innerHTML === responseData.message) {
@@ -54,7 +56,7 @@ export default function Page({ meet }) {
             <div>
                 <div className="ml-1">Attendee ID:</div>
                 <form className="join w-[500px] mt-2" onSubmit={formSubmit}>
-                    <input name="id" className="input input-bordered join-item flex-grow" autoComplete='off' />
+                    <input name="id" className="input input-bordered join-item flex-grow" ref={idInput} autoComplete='off' />
                     <button type="submit" className="btn btn-primary join-item rounded-r-xl">Submit</button>
                 </form>
             </div>
