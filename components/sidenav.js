@@ -134,6 +134,12 @@ export default function SideNav({ page, router, setCreate, meets, currentMeetInf
                                     </li>
                                 )}
                                 <li>
+                                    <Link className={setActive('code')} href={setLink('code')}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        ID Input
+                                    </Link>
+                                </li>
+                                <li>
                                     <Link className={setActive('attendees')} href={setLink('attendees')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                         Attendees

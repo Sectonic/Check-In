@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { QrReader } from "react-qr-reader";
 import db from '@/lib/prisma';
 import audio from '@/public/success_sound.mp3';
@@ -13,9 +13,21 @@ export const getServerSideProps = async ({ params }) => {
 
 export default function QR({ meet }) {
   const success_audio = new Audio(audio);
-
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const messageData = useRef(null);
   const messageType = useRef(null);
+
+  const updateWindowWidth = () => {
+    setWindowWidth(window.innerWidth);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', updateWindowWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateWindowWidth);
+    };
+  }, []);
 
   const getResult = async (qrId) => {
     if (!messageData.current.innerHTML.includes(qrId)) {
@@ -59,11 +71,11 @@ export default function QR({ meet }) {
             getResult(result.text);
           }
         }}
-        videoContainerStyle={{paddingTop: 0}}
-        videoStyle={{borderRadius: 20, position: 'relative', width: '100%', padding: 0}}
+        videoContainerStyle={{paddingTop: 0, overflow: 'inherit', height: windowWidth < 1110 ? '' : `calc(100vh - 175px)`}}
+        videoStyle={{borderRadius: 20, position: windowWidth < 1110 ? 'relative' : 'absolute', height: windowWidth < 1110 ? '' : `calc(100vh - 175px)`}}
         ViewFinder={() => (
-          <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 w-full h-full'>
-            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/4 h-[45%] border'>
+          <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 w-[100%] max-[1110px]:rounded-xl  min-[1110px]:w-[109vh] h-full overflow-hidden'>
+            <div className='z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[150px] w-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] qr_outline ring-[10000px] ring-black/60 rounded-lg'>
               <div className='absolute -top-7 text-white text-center w-full'>Scan here</div>
             </div>
           </div>
