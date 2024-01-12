@@ -96,7 +96,7 @@ export default function MeetSettings({ setSettings, meet }) {
             <form className="modal-box" method="POST" onSubmit={meetSubmit}>
                 <h3 className="font-bold text-xl">{name} Settings</h3>
                 <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
-                    <div>*You cannot change these</div>
+                    <div>*<strong>You cannot change these</strong></div>
                     <div><strong>Reoccurance: </strong> {reoccuring ? 'True' : 'False'}</div>
                     <div><strong>Attendance Type: </strong>{getAttendanceType()}</div>
                 </div>

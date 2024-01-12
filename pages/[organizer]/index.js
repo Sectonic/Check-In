@@ -119,7 +119,7 @@ export default function Organizer({ organizer, currentOrganizer }) {
 
   useEffect(() => {
     exportHandler();
-  }, [csvExportFilters])
+  }, [csvExportFilters, value])
 
   useEffect(() => {
     getAttendees();
