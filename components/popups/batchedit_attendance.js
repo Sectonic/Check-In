@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function BatchEditAttendance({ organizerId, event, setEdit, endEdit, meetId }) {
+export default function BatchEditAttendance({ organizerId, event, setEdit, endEdit, meetId, trackAbsent, inclusive }) {
     const [attended, setAttended] = useState('Not Attended');
     const [attendees, setAttendees] = useState([]);
     const [search, setSearch] = useState('');
@@ -10,7 +10,7 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
     const late = useRef(null);
 
     const getAttendeesEvent = async () => {
-        const attendeesReq = await fetch('/api/get/attendees_event?' + new URLSearchParams({ eventId: event.id, organizerId, meetId }));
+        const attendeesReq = await fetch('/api/get/attendees_event?' + new URLSearchParams({ eventId: event.id, organizerId, meetId, inclusive }));
         const attendeesData = await attendeesReq.json();
         setAttendees(attendeesData.attendees);
         setLoading(false);
@@ -28,6 +28,9 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
             attendees: attendees.filter(attendee => selectedAttendees.includes(attendee.id)),
             attendance: e.target.attendance.value,
             late: Number(e.target.late.value),
+            trackAbsent,
+            event
+            
         };
 
         const options = {

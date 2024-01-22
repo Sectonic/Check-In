@@ -8,13 +8,23 @@ export default ApiRoute(
             res.status(504).send({ error: 'Only POST requests allowed' });
             return;
         }
-        const { meetId,  name, startTime, endTime, manual, qr } = req.body;
+
+        const user = req.session.user;
+        if (!user || user.admin) {
+            res.status(401).send({ error: 'A Organizer account is needed to access'});
+            return;
+        }
+
+        const { meetId,  name, startTime, endTime, } = req.body;
+
         const meet = await db.meet.findFirst({
             where: {id:Number(meetId)},
-            include: {
-                attendees: true
-            }
         });
+
+        const attendees = meet.inclusive ? 
+            await db.attendee.findMany({ where: { organizer: { id: user.id } } }) : 
+            await db.attendee.findMany({ where: { meets: { some: { id: meet.id } } } });
+
         if (!meet) {
             res.status(401).send({ error: 'You do not have authority to create a meet'});
             return;
@@ -31,14 +41,14 @@ export default ApiRoute(
             hours = dayjs.unix(endTime).diff(dayjs.unix(startTime), 'minute') / 60;
         }
         const eventDict = {
-            name, startTime, endTime, manual, qr,
+            name, startTime, endTime,
             attendances: {
-                create: meet.attendees.map(attendee => ({
+                create: meet.trackAbsent ? attendees.map(attendee => ({
                     attendeeId: attendee.id,
                     name: attendee.name,
                     specificId: attendee.specificId,
                     hours: Math.round(hours * 100) / 100
-                }))
+                })) : []
             },
             meet: {
                 connect: {

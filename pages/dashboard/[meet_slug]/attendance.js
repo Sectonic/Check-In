@@ -106,11 +106,49 @@ export default function Attendance({ currentMeet, organizerId }) {
 
   return (
       <>  
-        { edit && <EditAttendance setEdit={setEdit} attendance={edit} endEdit={endEdit} /> }
-        { create && <CreateEvent setCreate={setCreate} currentMeet={currentMeet} /> }
-        { eventEdit && <EditEvent event={event} setEventEdit={setEventEdit} currentMeet={currentMeet} />}
-        { batchEdit && <BatchEditAttendance event={currentEvent} organizerId={organizerId} setEdit={setBatchEdit} endEdit={endEdit} meetId={currentMeet.id}  /> }
-        { addRecord && <AddAttendanceRecord event={currentEvent} meetId={currentMeet.id} organizerId={organizerId} setEdit={setAddRecord} endEdit={endEdit} /> }
+        { edit && 
+          <EditAttendance 
+            setEdit={setEdit} 
+            attendance={edit} 
+            endEdit={endEdit} 
+            meet={currentMeet} 
+          /> 
+        }
+        { create && 
+          <CreateEvent 
+            setCreate={setCreate} 
+            currentMeet={currentMeet} 
+          /> 
+        }
+        { eventEdit && 
+          <EditEvent 
+            event={event} 
+            setEventEdit={setEventEdit} 
+            currentMeet={currentMeet} 
+          />
+        }
+        { batchEdit && 
+          <BatchEditAttendance 
+            event={currentEvent} 
+            organizerId={organizerId} 
+            setEdit={setBatchEdit} 
+            endEdit={endEdit} 
+            meetId={currentMeet.id} 
+            trackAbsent={currentMeet.trackAbsent} 
+            inclusive={currentMeet.inclusive}
+          /> 
+        }
+        { addRecord && 
+          <AddAttendanceRecord 
+            event={currentEvent} 
+            meetId={currentMeet.id} 
+            organizerId={organizerId} 
+            setEdit={setAddRecord} 
+            endEdit={endEdit} 
+            trackAbsent={currentMeet.trackAbsent} 
+            inclusive={currentMeet.inclusive}
+            /> 
+          }
         <div className="flex justify-start items-end gap-3">
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}

@@ -69,8 +69,6 @@ export default function CreateEvent({ setCreate, currentMeet }) {
             name,
             startTime: startUnix.unix(),
             endTime: endUnix.unix(),
-            manual: currentMeet.manual,
-            qr: currentMeet.qr,
             meetId: currentMeet.id,
         };
 

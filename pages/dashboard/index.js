@@ -19,9 +19,8 @@ export const getServerSideProps = SsrRoute(
                 id: true,
                 name: true,
                 image: true,
-                qr: true,
                 reoccurance: true,
-                manual: true,
+                inclusive: true,
                 _count: {
                     select: { 
                         attendees: true,
@@ -71,20 +70,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         setEdit(false);
         setAttendee({});
         searchHandler();
-    }
-
-    const getMeetType = (meet) => {
-        var type = "";
-        var meetType;
-        type += meet.reoccurance ? "Reoccuring" : "Non-Reoccuring";
-        if (meet.qr) {
-            meetType = "QR";
-        } else if (meet.manual) {
-            meetType = "Manual";
-        } else {
-            meetType = "Form";
-        }
-        return `${type}, ${meetType}`;
     }
 
     const getInitials = (name) => {
@@ -217,7 +202,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{getMeetType(meet)}</div>
                                                     <div className="text-lg font-bold">{meet.name}</div>
                                                 </div>
                                             </div>
@@ -234,7 +218,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                                         </div>
                                         <div className="mt-2 flex justify-start items-center gap-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <div className="text-sm">{meet._count.attendees} Attend</div>
+                                            <div className="text-sm">{meet.inclusive ? 'All' : meet._count.attendees} Attend</div>
                                         </div>
                                     </Link>
                                 ))}
@@ -281,7 +265,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                             <div>
                                 <div className="btn btn-primary btn-sm text-primary-content gap-1" onClick={() => setCsvImport(true)}>
                                     <svg class="w-4 h-4 text-primary-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V5.828a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 1 7.828 1h8.239A.969.969 0 0 1 17 2v16a.969.969 0 0 1-.933 1H3.933A.97.97 0 0 1 3 18v-2M8 1v4a1 1 0 0 1-1 1H3m-2 6h10M9.061 9.232 11.828 12l-2.767 2.768"/>
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8V5.828a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 1 7.828 1h8.239A.969.969 0 0 1 17 2v16a.969.969 0 0 1-.933 1H3.933A.97.97 0 0 1 3 18v-2M8 1v4a1 1 0 0 1-1 1H3m-2 6h10M9.061 9.232 11.828 12l-2.767 2.768"/>
                                     </svg>
                                     Import
                                 </div>

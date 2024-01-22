@@ -33,15 +33,18 @@ export default ApiRoute(
         )
       );
 
-      updatePromises.push(
-        db.attendance.deleteMany({
-          where: { 
-            event: { startTime: { gt: dayjs().unix() }, meet: { id: Number(meet)} },
-            attendee: { id: { in: outside } },
-            attended: false
-          },
-        })
-      );
+      if (meet.trackAbsent) {
+        updatePromises.push(
+          db.attendance.deleteMany({
+            where: { 
+              event: { startTime: { gt: dayjs().unix() }, meet: { id: Number(meet)} },
+              attendee: { id: { in: outside } },
+              attended: false
+            },
+          })
+        );
+      }
+
     }
 
     if (inside.length > 0) {
@@ -59,33 +62,35 @@ export default ApiRoute(
         )
       );
 
-      const allFutureEvents = await db.event.findMany({ where: { meet: { id: Number(meet) }, endTime: { gt: dayjs().unix() } } });
+      if (meet.trackAbsent) {
+        const allFutureEvents = await db.event.findMany({ where: { meet: { id: Number(meet) }, endTime: { gt: dayjs().unix() } } });
 
-      for (let i = 0; i < allFutureEvents.length; i++) {
-        const futureEvent = allFutureEvents[i];
-        let hours = dayjs.unix(futureEvent.endTime).diff(dayjs.unix(futureEvent.startTime), 'hour');
-        const attendeesPromises = [];
-
-        if (hours === 0) {
-          hours = dayjs.unix(futureEvent.endTime).diff(dayjs.unix(futureEvent.startTime), 'minute') / 60;
+        for (let i = 0; i < allFutureEvents.length; i++) {
+          const futureEvent = allFutureEvents[i];
+          let hours = dayjs.unix(futureEvent.endTime).diff(dayjs.unix(futureEvent.startTime), 'hour');
+          const attendeesPromises = [];
+  
+          if (hours === 0) {
+            hours = dayjs.unix(futureEvent.endTime).diff(dayjs.unix(futureEvent.startTime), 'minute') / 60;
+          }
+  
+          for (let j = 0; j < inside.length; j++) {
+            const attendee = inside[j];
+            attendeesPromises.push(
+              db.attendance.create({
+                data: {
+                  attendee: { connect: { id: attendee.id } },
+                  event: { connect: { id: futureEvent.id } },
+                  hours: Math.round(hours * 100) / 100,
+                  name: attendee.name,
+                  specificId: attendee.specificId
+                }
+              })
+            );
+          }
+  
+          updatePromises.push(...attendeesPromises);
         }
-
-        for (let j = 0; j < inside.length; j++) {
-          const attendee = inside[j];
-          attendeesPromises.push(
-            db.attendance.create({
-              data: {
-                attendee: { connect: { id: attendee.id } },
-                event: { connect: { id: futureEvent.id } },
-                hours: Math.round(hours * 100) / 100,
-                name: attendee.name,
-                specificId: attendee.specificId
-              }
-            })
-          );
-        }
-
-        updatePromises.push(...attendeesPromises);
       }
     }
 

@@ -41,44 +41,6 @@ export const DatePicker = ({ children, setDates, dates}) => {
     )
 }
 
-export const TypeButton = ({ type, desc, active, typeHandler }) => {
-    const classActive = `btn w-24 ${active ? 'btn-primary' : 'btn-ghost'}`;
-    return <button type="button" className={classActive} onClick={() => typeHandler(type, desc)}>{type}</button>
-}
-
-export const TypePicker = ({ children, type, setType, reoccuringHandler }) => {
-    const [desc, setDesc] = useState(Children.toArray(children)[0].props.desc);
-
-    const typeHandler = (newType, newDesc) => {
-        if (newType === 'Manual') {
-            reoccuringHandler({ target: { checked: false }});
-        }
-        setDesc(newDesc);
-        setType(newType);
-    }
-
-    return (
-        <>
-            <div className="mt-1 flex justify-start gap-2">
-                {Children.map(children, child => {
-                    if (child.props.type === type) {
-                        return cloneElement(child, {active: true, typeHandler}) 
-                    } else {
-                        return cloneElement(child, {active: false, typeHandler}) 
-                    }
-                })}
-            </div>
-            <div className="ml-1 mt-1 font-semibold">{type} type</div>
-            <div className="ml-1 text-sm">
-                {desc}
-            </div>
-            <div className="bg-base-200 p-2 rounded-lg mt-2 text-xs">
-                    *Every attendance type has the option to manually change attendance. With form and QR code, you are given more options.
-            </div>
-        </>
-    )
-}
-
 export const TimeDropdownSlot = ({ type, list, selected, timeHandler }) => {
     return (
         <div className="overflow-y-scroll scrollbar-hide flex items-center flex-col gap-2 p-2">
@@ -124,7 +86,7 @@ export const TimeDropdown = ({ time, setTime }) => {
 
 export const TimePicker = ({ label, time, setTime, value, reoccuring, position}) => {
     return (
-        <div className={`dropdown dropdown-bottom ${position && 'dropdown-' + position}`}>
+        <div className={`z-10 dropdown dropdown-bottom ${position && 'dropdown-' + position}`}>
             <label className="label">
                 <span className="label-text">{label}</span>
             </label>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function AddAttendanceRecord({ organizerId, setEdit, endEdit, meetId, event }) {
+export default function AddAttendanceRecord({ organizerId, setEdit, endEdit, meetId, event, trackAbsent, inclusive }) {
     const [attended, setAttended] = useState('Not Attended');
     const [attendees, setAttendees] = useState([]);
     const [search, setSearch] = useState('');
@@ -11,7 +11,7 @@ export default function AddAttendanceRecord({ organizerId, setEdit, endEdit, mee
     const late = useRef(null);
 
     const getAttendeesEvent = async () => {
-        const attendeesReq = await fetch('/api/get/attendees_event?' + new URLSearchParams({ organizerId, meetId }));
+        const attendeesReq = await fetch('/api/get/attendees_event?' + new URLSearchParams({ organizerId, meetId, inclusive }));
         const attendeesData = await attendeesReq.json();
         setAttendees(attendeesData.attendees);
         setLoading(false);
@@ -103,7 +103,7 @@ export default function AddAttendanceRecord({ organizerId, setEdit, endEdit, mee
                         <span className="label-text">Attendance</span>
                     </label>
                     <select className="select select-bordered" onChange={selectHandler} name="attendance" value={attended}>
-                        <option>Not Attended</option>
+                        {trackAbsent && <option>Not Attended</option>}
                         <option>Attended</option>
                     </select>
                 </div>

@@ -8,12 +8,14 @@ export default ApiRoute(
             res.status(504).send({ error: 'Only POST requests allowed' });
             return;
         }
+        
         const user = req.session.user;
         if (!user || user.admin) {
             res.status(401).send({ error: 'A Organizer account is needed to access'});
             return;
         }
-        const { name, reoccurance, qr, image, startDict, endDict, manual, scope, reoccurances, tardy } = req.body;
+
+        const { name, reoccurance, image, startDict, endDict, scope, reoccurances, tardy, trackAbsent, inclusive, multipleSubmissions } = req.body;
         const name_exists = !!await db.meet.findFirst({
             where: {name}
         });
@@ -22,7 +24,7 @@ export default ApiRoute(
             return;
         }
         const meetDict = {
-            name, reoccurance, qr, manual, 
+            name, reoccurance, trackAbsent, inclusive, multipleSubmissions,
             organizer: {
                 connect: {
                     id: user.id

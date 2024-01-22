@@ -16,6 +16,9 @@ export default function MeetSettings({ setSettings, meet }) {
     const [endTime, setEndTime] = useState(JSON.parse(meet.endDict));
     const [tardy, setTardy] = useState(meet.tardy || null);
     const [tardyCheck, setTardyCheck] = useState(!meet.tardy);
+    const [trackAbsent, setTrackAbsent] = useState(meet.trackAbsent);
+    const [inclusive, setInclusive] = useState(meet.inclusive);
+    const [multipleSubmissions, setMultipleSubmissions] = useState(meet.multipleSubmissions);
     const reoccuring = meet.reoccurance;
     const [error, setError] = useState('');
     const scopeSelect = useRef(null);
@@ -29,7 +32,7 @@ export default function MeetSettings({ setSettings, meet }) {
             name, tardy,
             startDict: JSON.stringify(startTime),
             endDict: JSON.stringify(endTime),
-            scope,
+            scope, trackAbsent, inclusive,
             reoccurances: dates,
             imageB64: imageB64 === meet.image ? null : imageB64.split('base64,')[1]
         };
@@ -78,12 +81,6 @@ export default function MeetSettings({ setSettings, meet }) {
         return `${timeDict.hour}:${minutes} ${timeDict.time}`
     }
 
-    const getAttendanceType = () => {
-        if (!meet.qr && !meet.manual) return 'Form';
-        if (meet.qr) return 'QR Code';
-        if (meet.manual) return 'Manual';
-    }
-
     const tardyHandler = (e) => {
         if (!e.target.checked) {
             setTardy('');
@@ -98,13 +95,35 @@ export default function MeetSettings({ setSettings, meet }) {
                 <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
                     <div>*<strong>You cannot change these</strong></div>
                     <div><strong>Reoccurance: </strong> {reoccuring ? 'True' : 'False'}</div>
-                    <div><strong>Attendance Type: </strong>{getAttendanceType()}</div>
                 </div>
                 <div className="form-control w-full">
                     <label className="label">
                         <span className="label-text">Name</span>
                     </label>
                     <input type="text" onChange={(e) => setName(e.target.value)} value={name} required minLength={2} maxLength={32} placeholder="Type here" className="input input-bordered w-full" />
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" className="checkbox checkbox-primary" checked={trackAbsent} onChange={(e) => {
+                            setTrackAbsent(e.target.checked);
+                            if (e.target.checked && multipleSubmissions) {
+                                setMultipleSubmissions(false);
+                            }
+                        }} />
+                        <span className="label-text">Track Absent</span>
+                    </label>
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" disabled={trackAbsent} className="checkbox checkbox-primary" checked={multipleSubmissions} onChange={(e) => setMultipleSubmissions(e.target.checked)} />
+                        <span className="label-text">Multiple Event Attendances</span>
+                    </label>
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" className="checkbox checkbox-primary" checked={inclusive} onChange={(e) => setInclusive(e.target.checked)} />
+                        <span className="label-text">Include All Attendees</span>
+                    </label>
                 </div>
                 <div className="ml-1 mt-2 label-text">Tardies (min)</div>
                 <div className="flex items-center gap-3 ml-1 mt-1">

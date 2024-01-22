@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Date, DatePicker, TypeButton, TypePicker, TimePicker } from "../meet_selections";
+import { Date, DatePicker, TimePicker } from "../meet_selections";
 import { useRouter } from "next/router";
 import * as dayjs from 'dayjs';
 
@@ -12,13 +12,15 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
     const [name, setName] = useState('');;
     const [imageB64, setImageB64] = useState(null);
     const [scope, setScope] = useState('');
-    const [type, setType] = useState('QR Code');
     const [startTime, setStartTime] = useState({hour: '--', minute: '--', time: '--'});
     const [endTime, setEndTime] = useState({hour: '--', minute: '--', time: '--'});
     const [reoccuring, setReoccuring] = useState(false);
     const [tardy, setTardy] = useState(null);
     const [tardyCheck, setTardyCheck] = useState(true);
     const [error, setError] = useState('');
+    const [trackAbsent, setTrackAbsent] = useState(true);
+    const [inclusive, setInclusive] = useState(true);
+    const [multipleSubmissions, setMultipleSubmissions] = useState(false);
     const scopeSelect = useRef(null);
     const checkbox = useRef(null);
 
@@ -68,13 +70,11 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
         }
 
         const data = {
-            name, tardy,
+            name, tardy, trackAbsent, inclusive, multipleSubmissions,
             reoccurance: reoccuring,
             startDict: JSON.stringify(startTime),
             endDict: JSON.stringify(endTime),
             scope,
-            qr: type === 'QR Code' ? true : false,
-            manual: type === 'Manual' ? true : false,
             reoccurances: dates,
             image: imageB64?.split('base64,')[1] || null
         };
@@ -117,13 +117,9 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
             setDates([]);
             scopeSelect.current.selectedIndex = 0;
         } else {
-            if (type !== 'Manual') {
-                setReoccuring(true);
-                setStartTime({hour: 4, minute: 0, time: 'PM'})
-                setEndTime({hour: 5, minute: 0, time: 'PM'})
-            } else {
-                checkbox.current.checked = false;
-            }
+            setReoccuring(true);
+            setStartTime({hour: 4, minute: 0, time: 'PM'})
+            setEndTime({hour: 5, minute: 0, time: 'PM'})
         }
     }
 
@@ -151,6 +147,38 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                         <span className="label-text">Name</span>
                     </label>
                     <input type="text" onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={32} placeholder="Type here" className="input input-bordered w-full" />
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" className="checkbox checkbox-primary" checked={trackAbsent} onChange={(e) => {
+                            setTrackAbsent(e.target.checked);
+                            if (e.target.checked && multipleSubmissions) {
+                                setMultipleSubmissions(false);
+                            }
+                        }} />
+                        <span className="label-text">Track Absent</span>
+                    </label>
+                </div>
+                <div className="bg-base-200 p-2 rounded-lg text-xs">
+                    *With track absent off, there will no longer be absent attendance records in the events. If you wish to "mark" someone absent, you must delete their record.
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" disabled={trackAbsent} className="checkbox checkbox-primary" checked={multipleSubmissions} onChange={(e) => setMultipleSubmissions(e.target.checked)} />
+                        <span className="label-text">Multiple Event Attendances</span>
+                    </label>
+                </div>
+                <div className="bg-base-200 p-2 rounded-lg text-xs">
+                    *This option can only be turned on if track absent is off. With multiple event attendances on, an attendee can attend an event multiple times.
+                </div>
+                <div className="form-control w-max mt-2">
+                    <label className="label cursor-pointer gap-2">
+                        <input type="checkbox" className="checkbox checkbox-primary" checked={inclusive} onChange={(e) => setInclusive(e.target.checked)} />
+                        <span className="label-text">Include All Attendees</span>
+                    </label>
+                </div>
+                <div className="bg-base-200 p-2 rounded-lg text-xs">
+                    *With include all attendees off, you can specify which attendees you want to include in this specific meet. This would mean only the attendees you select are able to attend.
                 </div>
                 <div className="ml-1 mt-2 label-text">Tardies (min)</div>
                 <div className="flex items-center gap-3 ml-1 mt-1">
@@ -217,12 +245,6 @@ export default function CreateMeet({ setCreate, fetchMeets }) {
                         </DatePicker>
                     </div>
                 )}
-                <div className="ml-1 mt-2 label-text">Attendance Type</div>
-                <TypePicker type={type} setType={setType} reoccuringHandler={ReoccuringHandler}>
-                    {/* <TypeButton type='Form' desc='The standard method. Collect attendance data through a form of questions. You can customly create the form. A pincode is required as security.' /> */}
-                    <TypeButton type='QR Code' desc='Collect attendance through scanning QR codes. Each attendee has a unique QR code which is scanned. No form or pincode is provided.' />
-                    <TypeButton type='Manual' desc='The old-school method. Manually input attendance for each attendee. Customly add information when needed. CANNOT be reoccuring.' />
-                </TypePicker>
                 <div className="ml-1 label-text font-semibold mt-4">Meet Picture</div>
                 <div className="mt-4 flex justify-center items-center gap-4 flex-col">
                     {imageB64 ? (

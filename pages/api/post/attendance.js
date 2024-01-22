@@ -6,6 +6,7 @@ var duration = require('dayjs/plugin/duration')
 dayjs.extend(duration)
 
 export default ApiRoute(async function (req, res) {
+  
   if (req.method !== "POST") {
     res.status(504).send({ message: 'Only POST requests allowed' });
     return;
@@ -18,32 +19,34 @@ export default ApiRoute(async function (req, res) {
   }
 
   const { attendeeId, meetId } = req.body;
-  const attendee = await db.attendee.findFirst({
-    where: {
-      specificId: attendeeId,
-      organizer: {
-        id: user.id
-      },
-      meets: {
-        some: {
-          id: meetId
-        }
-      }
-    }
-  });
 
-  if (!attendee) {
-    res.status(409).send({ message: 'Your QR Code is invalid @' + attendeeId });
-    return;
-  }
-
-  const currentUnix = dayjs().unix();
   const currentMeet = await db.meet.findUnique({
     where: { id: meetId },
     include: {
       reoccurances: true,
     }
   });
+
+  const attendee = currentMeet.inclusive ? 
+    await db.attendee.findFirst({
+      where: {
+        specificId: attendeeId,
+        organizer: { id: user.id }
+      }
+    }) : 
+    await db.attendee.findFirst({
+      where: {
+        specificId: attendeeId,
+        meets: { some: { id: currentMeet.id } }
+      }
+    });
+
+  if (!attendee) {
+    res.status(409).send({ message: 'Invalid Code', id: attendeeId });
+    return;
+  }
+
+  const currentUnix = dayjs().unix();
   const inTimeEvent = await db.event.findFirst({
     where: {
       startTime: { lt: currentUnix },
@@ -53,11 +56,12 @@ export default ApiRoute(async function (req, res) {
   });
 
   if (!inTimeEvent && !currentMeet.reoccurance) {
-    res.status(500).json({ message: 'There is no ongoing event scheduled @' + attendeeId });
+    res.status(500).json({ message: 'No ongoing event', id: attendeeId });
     return;
   }
 
   if (inTimeEvent) {
+
     const checkAttendance = await db.attendance.findFirst({
       where: {
         event: { id: inTimeEvent.id },
@@ -65,25 +69,45 @@ export default ApiRoute(async function (req, res) {
       }
     });
 
-    if (checkAttendance.attended) {
-      res.status(200).send({ message: 'You have already submitted attendance @' + attendeeId });
+    if (!currentMeet.multipleSubmissions && checkAttendance && checkAttendance.attended) {
+      res.status(200).send({ message: 'Already submitted', id: attendeeId });
       return;
     }
 
     const submitted = dayjs().diff(dayjs.unix(inTimeEvent.startTime), 'minute');
 
-    await db.attendance.updateMany({
-      where: {
-        eventId: inTimeEvent.id,
-        attendeeId: attendee.id
-      },
-      data: {
-        attended: true,
-        submitted
-      }
-    })
+    if (currentMeet.trackAbsent) {
 
-    res.status(200).json({ message: attendee.name + "'s attendance has been recorded @" + attendeeId});
+      await db.attendance.update({
+        where: { id: checkAttendance.id },
+        data: {
+          attended: true,
+          submitted
+        }
+      });
+
+    } else {
+
+      var hours = inTimeEvent.endTime.diff(inTimeEvent.startTime, 'hour');
+      if (hours === 0) {
+          hours = inTimeEvent.endTime.diff(inTimeEvent.startTime, 'minute') / 60;
+      }
+
+      await db.attendance.create({
+        data: {
+          eventId: inTimeEvent.id,
+          attendeeId: attendee.id,
+          attended: true,
+          submitted,
+          name: attendee.name,
+          specificId: attendee.specificId,
+          hours: Math.round(hours * 100) / 100
+        }
+      })
+
+    }
+
+    res.status(200).json({ message: "Attendance recorded", id: attendeeId});
   } else if (currentMeet.reoccurance) {
     const startDict = JSON.parse(currentMeet.startDict);
     const endDict = JSON.parse(currentMeet.endDict);
@@ -117,7 +141,7 @@ export default ApiRoute(async function (req, res) {
 
     if ( currentDuration >= startDuration && currentDuration < endDuration) {
       if (currentMeet.scope === 'Weekly' && !currentMeet.reoccurances.map(i => i.date).includes(dayjs().day() + 1)) {
-        res.status(500).json({ message: 'There is no ongoing event scheduled @' + attendeeId });
+        res.status(500).json({ message: 'No ongoing event', id: attendeeId });
         return;
       }
 
@@ -130,9 +154,9 @@ export default ApiRoute(async function (req, res) {
           hours = newEndTime.diff(newStartTime, 'minute') / 60;
       }
 
-      const attendees = await db.attendee.findMany({
-        where: { meetId: currentMeet.id }
-      })
+      const attendees = currentMeet.inclusive ? 
+        await db.attendee.findMany({ where: { organizer: { id: user.id } } }) : 
+        await db.attendee.findMany({ where: { meets: { some: { id: currentMeet.id } } } });
 
       const newEvent = await db.event.create({
         data: {
@@ -140,33 +164,49 @@ export default ApiRoute(async function (req, res) {
           meet: { connect: { id: meetId } },
           startTime: newStartTime.unix(),
           endTime: newEndTime.unix(),
-          manual: currentMeet.manual,
-          qr: currentMeet.qr,
           attendances: {
-            create: attendees.map(attendee => ({
+            create: currentMeet.trackAbsent ? attendees.map(attendee => ({
               name: attendee.name,
               specificId: attendee.specificId,
               attendeeId: attendee.id,
               hours: Math.round(hours * 100) / 100
-            })
-          )}
+            })) : []
+          }
         }
       });
 
-      await db.attendance.updateMany({
-        where: {
-          eventId: newEvent.id,
-          attendeeId: attendee.id
-        },
-        data: {
-          attended: true,
-          submitted,
-        }
-      });
+      if (currentMeet.trackAbsent) {
 
-      res.status(200).json({ message: attendee.name + "'s attendance has been recorded @" + attendeeId});
+        await db.attendance.updateMany({
+          where: {
+            eventId: newEvent.id,
+            attendeeId: attendee.id
+          },
+          data: {
+            attended: true,
+            submitted,
+          }
+        });
+
+      } else {
+
+        await db.attendance.create({
+          data: {
+            eventId: newEvent.id,
+            attendeeId: attendee.id,
+            attended: true,
+            submitted,
+            name: attendee.name,
+            specificId: attendee.specificId,
+            hours: Math.round(hours * 100) / 100
+          }
+        });
+
+      }
+
+      res.status(200).json({ message: "Attendance recorded", id: attendeeId});
     } else {
-      res.status(500).json({ message: 'There is no ongoing event scheduled @' + attendeeId });
+      res.status(500).json({ message: 'No ongoing event', id: attendeeId });
     }
   }
 });

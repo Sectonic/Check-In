@@ -28,17 +28,17 @@ export default function Page({ meet }) {
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify(data)
             }
-            const response = await fetch('/api/post/attendance/qr', options);
+            const response = await fetch('/api/post/attendance', options);
             const responseData = await response.json();
-            if (response.ok && responseData.message.split("@")[0] !== "You have already submitted attendance") {
+            if (response.ok && responseData.message !== "Already submitted") {
               success_audio.play();
             }
             messageType.current.className = `alert mb-3 max-w-[500px] mt-2 ${response.ok ? 'alert-success' : 'alert-error'}`;
-            messageData.current.innerHTML = responseData.message;
+            messageData.current.innerHTML = responseData.message + " @" + responseData.id;
             idInput.current.value = "";
         
             setTimeout(() => {
-              if (messageData.current && messageData.current.innerHTML === responseData.message) {
+              if (messageData.current && messageData.current.innerHTML === responseData.message + " @" + responseData.id) {
                 messageData.current.innerHTML = "No Submission";
                 messageType.current.className = "alert mb-3 max-w-[500px] mt-2";
               }
@@ -49,7 +49,7 @@ export default function Page({ meet }) {
     return (
         <div className="flex justify-center items-center flex-col h-[calc(100vh-115px)]">
             <div className="text-4xl font-bold">ID Attendance</div>
-            <div className='mt-1'>Put in your Student ID and click "Enter" on the Keypad</div>
+            <div className='mt-1'>Put in your ID and click "Enter" on the Keypad</div>
             <div className="alert mb-3 max-w-[500px] mt-2" ref={messageType}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span ref={messageData}>No Submission</span>

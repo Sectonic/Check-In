@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Children, useState } from 'react';
 import MeetSettings from './popups/meet_settings';
 
-export function DashboardLayout({ page, meets, fetchMeets, currentMeet, children}) {
+export function DashboardLayout({ page, meets, fetchMeets, children, currentMeet }) {
     const router = useRouter();
     const [create, setCreate] = useState(false);
     const [settings, setSettings] = useState(false);
@@ -23,7 +23,6 @@ export function DashboardLayout({ page, meets, fetchMeets, currentMeet, children
                     setCreate={setCreate} 
                     setSettings={setSettings} 
                     meets={meets} 
-                    currentMeetInfo={currentMeet} 
                     short={short} 
                     setShort={setShort} 
                 />

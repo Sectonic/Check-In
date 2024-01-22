@@ -5,7 +5,14 @@ import { useRouter } from "next/router";
 
 export const getServerSideProps = SsrRoute(
     async function getServerSideProps({ req, params }) {
+
         const user = req.session.user;
+        const meet = await db.meet.findUnique({ where: { id: Number(params.meet_slug) }, select: { inclusive: true } });
+
+        if (meet.inclusive) {
+          return { props: { meet: params.meet_slug, inclusive: true } };
+        }
+
         const attendeesInside = await db.attendee.findMany({
           where: {
               meets: {
@@ -36,18 +43,28 @@ export const getServerSideProps = SsrRoute(
                 inside: attendeesInside, 
                 outside: attendeesOutside
               },
-              meet: params.meet_slug 
+              meet: params.meet_slug,
+              inclusive: false
             }
         }
     }
 )
 
-export default function Attendees({ attendees, meet }) {
+export default function Attendees({ attendees, meet, inclusive }) {
   const router = useRouter();
   const [newInside, setNewInside] = useState([]);
   const [newOutside, setNewOutside] = useState([]);
   const [search, setSearch] = useState('');
   const save = useRef(null)
+
+  if (inclusive) {
+    return (
+      <div className="max-sm:px-6 w-full sm:w-3/4 mx-auto">
+        <div className="text-3xl font-semibold">Meet Attendees</div>
+        <div>This meet has enabled include all attendees. This means it selects every attendee you have created as an organizer. To turn this off, go to meet settings.</div>
+      </div>
+    )
+  }
 
   const addInside = (attendee) => {
     if (!attendees.inside.some(e => e.specificId === attendee.specificId)) {
@@ -97,6 +114,10 @@ export default function Attendees({ attendees, meet }) {
       router.replace(router.asPath);
     }
     
+  }
+
+  if (meet.inclusive) {
+
   }
 
   return (
