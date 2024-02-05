@@ -80,6 +80,7 @@ model Event {
   name String
   startTime Int
   endTime Int
+  multipleSubmissions Boolean @default(false)
   tag String?
   meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
   meetId Int

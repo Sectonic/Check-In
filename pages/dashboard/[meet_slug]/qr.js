@@ -88,7 +88,7 @@ export default function QR({ meet }) {
                 />
               </div>
               <div className='p-3 rounded-xl w-[160px] bg-white text-center transition hover:bg-primary-content cursor-pointer'>
-                <div>Don't have a code?</div>
+                <div>Don't have one?</div>
                 <img src='/img/add.png' className='my-1 w-[35px] h-[35px] mx-auto' />
                 <div className='font-semibold'>Create one</div>
               </div>

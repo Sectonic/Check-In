@@ -69,7 +69,7 @@ export default ApiRoute(async function (req, res) {
       }
     });
 
-    if (!currentMeet.multipleSubmissions && checkAttendance && checkAttendance.attended) {
+    if (!inTimeEvent.multipleSubmissions && checkAttendance && checkAttendance.attended) {
       res.status(200).send({ message: 'Already submitted', id: attendeeId });
       return;
     }
@@ -88,9 +88,9 @@ export default ApiRoute(async function (req, res) {
 
     } else {
 
-      var hours = inTimeEvent.endTime.diff(inTimeEvent.startTime, 'hour');
+      var hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'hour');
       if (hours === 0) {
-          hours = inTimeEvent.endTime.diff(inTimeEvent.startTime, 'minute') / 60;
+          hours = dayjs.unix(inTimeEvent.endTime).diff(dayjs.unix(inTimeEvent.startTime), 'minute') / 60;
       }
 
       await db.attendance.create({
@@ -162,6 +162,7 @@ export default ApiRoute(async function (req, res) {
         data: {
           name: `${dayjs().format('MM/DD/YYYY')} | ${newStartTime.format('hh:mm A')} - ${newEndTime.format('hh:mm A')}`,
           meet: { connect: { id: meetId } },
+          multipleSubmissions: currentMeet.multipleSubmissions,
           startTime: newStartTime.unix(),
           endTime: newEndTime.unix(),
           attendances: {

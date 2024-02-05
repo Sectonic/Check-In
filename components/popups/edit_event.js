@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
+import * as dayjs from 'dayjs';
 
 export default function EditEvent({ event, setEventEdit, currentMeet }) {
     const [name, setName] = useState(event.name);
@@ -40,6 +41,11 @@ export default function EditEvent({ event, setEventEdit, currentMeet }) {
         <div className="modal modal-open modal-bottom sm:modal-middle">
             <form className="modal-box" onSubmit={editHandler}>
                 <h3 className="font-bold text-xl">Edit Event: {name}</h3>
+                <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
+                    <div>*<strong>You cannot change these</strong></div>
+                    <div><strong>Time: </strong> {dayjs.unix(event.startTime).format('hh:mm A')} - {dayjs.unix(event.endTime).format('hh:mm A')}</div>
+                    <div><strong>Multiple Event Attendances: </strong> {event.multipleSubmissions ? 'True' : 'False'}</div>
+                </div>
                 <div className="form-control w-full">
                     <label className="label">
                         <span className="label-text">Name</span>

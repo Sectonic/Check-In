@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function BatchEditAttendance({ organizerId, event, setEdit, endEdit, meetId, trackAbsent, inclusive }) {
+export default function BatchEditAttendance({ organizerId, event, setEdit, endEdit, meetId, trackAbsent, inclusive, multipleSubmissions }) {
     const [attended, setAttended] = useState('Not Attended');
     const [attendees, setAttendees] = useState([]);
     const [search, setSearch] = useState('');
@@ -8,6 +8,7 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
     const [loading, setLoading] = useState(true);
     const [editting, setEditting] = useState(false);
     const late = useRef(null);
+    const attAmount = useRef(null);
 
     const getAttendeesEvent = async () => {
         const attendeesReq = await fetch('/api/get/attendees_event?' + new URLSearchParams({ eventId: event.id, organizerId, meetId, inclusive }));
@@ -27,7 +28,8 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
         const data = {
             attendees: attendees.filter(attendee => selectedAttendees.includes(attendee.id)),
             attendance: e.target.attendance.value,
-            late: Number(e.target.late.value),
+            late: Number(e.target.late?.value) || 0,
+            attendanceAmount: Number(e.target.attAmount?.value) || (e.target.attendance?.value === 'Attended' ? 1 : 0),
             trackAbsent,
             event
             
@@ -47,10 +49,26 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
 
     const selectHandler = (e) => {
         setAttended(e.target.value);
-        if (e.target.value === 'Attended' && !late.current.value) {
-            late.current.value = 0;
-        } else if (e.target.value === 'Not Attended' && late.current.value) {
-            late.current.value = null;
+        if (e.target.value === 'Attended') {
+
+            if (late.current && !late.current.value) {
+                late.current.value = 0;
+            }
+
+            if (attAmount.current) {
+                attAmount.current.value = 1;
+            }
+
+        } else if (e.target.value === 'Not Attended') {
+
+            if (late.current && late.current.value) {
+                late.current.value = null;
+            }
+
+            if (attAmount.current) {
+                attAmount.current.value = 0;
+            }
+
         }
     }
 
@@ -61,6 +79,16 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
             late.current.value = 0;
         } else if (e.target.value.length === 2 && e.target.value[0] === '0' && attended === 'Attended') {
             late.current.value = e.target.value[1];
+        }
+    }
+
+    const attAmountHandler = (e) => {
+        if (e.target.value && attended === 'Not Attended') {
+            attAmount.current.value = 0;
+        } else if (!e.target.value && attended === 'Attended') {
+            attAmount.current.value = 1;
+        } else if (e.target.value.length === 2 && e.target.value[0] === '1' && attended === 'Attended') {
+            attAmount.current.value = e.target.value[1];
         }
     }
 
@@ -114,15 +142,26 @@ export default function BatchEditAttendance({ organizerId, event, setEdit, endEd
                         <option>Attended</option>
                     </select>
                 </div>
-                <div className="form-control w-full">
-                    <label className="label">
-                        <span className="label-text">Submitted In (MIN)</span>
-                    </label>
-                    <input name="late" ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" />
-                </div>
-                <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
-                    *To mark as Tardy, put the submitted in time higher than the meet tardy time (if even enabled)
-                </div>
+                { multipleSubmissions ? (
+                    <div className="form-control w-full">
+                        <label className="label">
+                            <span className="label-text">Attendance Amount (Num of Att. records PER attendee)</span>
+                        </label>
+                        <input name="attAmount" ref={attAmount} defaultValue={0} onChange={attAmountHandler} type="number" placeholder="Type time" className="input input-bordered w-full" />
+                    </div>
+                ) : (
+                    <>
+                        <div className="form-control w-full">
+                            <label className="label">
+                                <span className="label-text">Submitted In (MIN)</span>
+                            </label>
+                            <input name="late" defaultValue={0} ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" />
+                        </div>
+                        <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
+                            *To mark as Tardy, put the submitted in time higher than the meet tardy time (if even enabled)
+                        </div>
+                    </>
+                ) }
                 { !loading && <div className="modal-action">
                     <button className="btn btn-success" type="submit">
                         { editting && <span className="loading loading-spinner"></span>}

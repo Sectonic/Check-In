@@ -66,6 +66,7 @@ export default ApiRoute(
           data: {
             name: `${dayjs().format('MM/DD/YYYY')} | ${startTime.format('hh:mm A')} - ${endTime.format('hh:mm A')}`,
             meet: { connect: { id: meet.id } },
+            multipleSubmissions: meet.multipleSubmissions,
             startTime: startTime.unix(),
             endTime: endTime.unix(),
             attendances: {
@@ -130,18 +131,35 @@ export default ApiRoute(
         },
         orderBy: {
           attendee: {
-            id: 'desc'
+            id: 'asc'
           }
         }
       });
-  
+
       allAttendance.forEach(att => {
+
         if (att.attended) {
-          attendance.push(att)
+
+          const { attendeeId, name, specificId, ...attendanceWithoutAttendee } = att;
+          const previousSubmissionIndex = attendance.findIndex(prevAtt => prevAtt.id === attendeeId);
+
+          if (previousSubmissionIndex !== -1) {
+            attendance[previousSubmissionIndex].attendances.push(attendanceWithoutAttendee);
+          } else {
+            attendance.push({
+              id: attendeeId,
+              name: name,
+              specificId: specificId,
+              attendances: [attendanceWithoutAttendee]
+            })
+          }
+
         } else {
           notAttended.push(att)
         }
+
       })
+  
     }
   
     const currentEvent = events.find(event => event.id === Number(correctEventId)) || futureEvents.find(event => event.id === Number(correctEventId)) || null;

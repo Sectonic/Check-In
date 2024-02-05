@@ -41,7 +41,8 @@ export default ApiRoute(
             hours = dayjs.unix(endTime).diff(dayjs.unix(startTime), 'minute') / 60;
         }
         const eventDict = {
-            name, startTime, endTime,
+            name, startTime, endTime, 
+            multipleSubmissions: meet.multipleSubmissions,
             attendances: {
                 create: meet.trackAbsent ? attendees.map(attendee => ({
                     attendeeId: attendee.id,

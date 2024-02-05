@@ -9,6 +9,8 @@ import EditEvent from '@/components/popups/edit_event';
 import BatchEditAttendance from "@/components/popups/batchedit_attendance";
 import { SsrRoute } from "@/lib/config";
 import AddAttendanceRecord from "@/components/popups/add_attendance_record";
+import { MultipleAttendance, SingularAttendance } from "@/components/attendanceRows";
+import EditMultipleAttendance from "@/components/popups/edit_multiple_attendance";
 
 export const getServerSideProps = SsrRoute(
   async function getServerSideProps({ req }) {
@@ -30,6 +32,7 @@ export default function Attendance({ currentMeet, organizerId }) {
   const [notAttended, setNotAttended] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
   const [edit, setEdit] = useState(null);
+  const [multipleEdit, setMultipleEdit] = useState(null);
   const [batchEdit, setBatchEdit] = useState(false);
   const [addRecord, setAddRecord] = useState(false);
   const [create, setCreate] = useState(false);
@@ -87,6 +90,7 @@ export default function Attendance({ currentMeet, organizerId }) {
 
   const endEdit = () => {
     setEdit(null);
+    setMultipleEdit(null);
     setBatchEdit(false);
     setAddRecord(false);
     getAttendanceData();
@@ -114,6 +118,15 @@ export default function Attendance({ currentMeet, organizerId }) {
             meet={currentMeet} 
           /> 
         }
+        {
+          multipleEdit != null &&
+          <EditMultipleAttendance 
+            attendee={multipleEdit}
+            setMultipleEdit={setMultipleEdit}
+            endEdit={endEdit}
+            event={currentEvent}
+          />
+        }
         { create && 
           <CreateEvent 
             setCreate={setCreate} 
@@ -136,6 +149,7 @@ export default function Attendance({ currentMeet, organizerId }) {
             meetId={currentMeet.id} 
             trackAbsent={currentMeet.trackAbsent} 
             inclusive={currentMeet.inclusive}
+            multipleSubmissions={currentEvent.multipleSubmissions}
           /> 
         }
         { addRecord && 
@@ -152,7 +166,7 @@ export default function Attendance({ currentMeet, organizerId }) {
         <div className="flex justify-start items-end gap-3">
           <h1 className="text-2xl font-semibold">{currentMeet.name} Attendance Sheet</h1>
           { !currentMeet.reoccurance && <div className="btn btn-success btn-sm font-semibold" onClick={() => setCreate(true) } >Add New Event</div>}
-          { currentEvent !== null && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setAddRecord(true)}>Add Record</div>}
+          { currentEvent !== null && !currentEvent.multipleSubmissions && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setAddRecord(true)}>Add Record</div>}
           { currentEvent !== null && <div className="btn btn-primary btn-sm font-semibold" onClick={() => setBatchEdit(true) } >Batch Attendance</div>}
         </div>
         <div className="p-2 mt-3 mb-2 flex max-sm:justify-between gap-3 bg-base-200 rounded-lg">
@@ -237,24 +251,7 @@ export default function Attendance({ currentMeet, organizerId }) {
                 </tr>
               </thead>
               <tbody>
-                {attendance.map(row => (
-                  <tr>
-                    <th>
-                      {row.name}
-                      <br/>
-                      <span className="text-[11px] font-normal">{row.specificId}</span>
-                    </th>
-                    <td>
-                      {row.submitted > (currentMeet.tardy || row.submitted + 1) ? (
-                        <span className={`badge badge-warning font-semibold`}>Tardy</span>
-                      ) : (
-                        <span className={`badge badge-success font-semibold`}>Present</span>
-                      )}
-                    </td>
-                    <td>{row.submitted}</td>
-                    <td><button onClick={() => setEdit(row)} className="btn btn-square btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
-                  </tr>
-                ))}
+                {attendance.map(row => currentEvent.multipleSubmissions ? <MultipleAttendance attendee={row} setMultipleEdit={setMultipleEdit} /> : <SingularAttendance setEdit={setEdit} attendee={row} tardy={currentMeet.tardy} />)}
                 {includeAbsent && notAttended.map(row => (
                   <tr>
                     <th>

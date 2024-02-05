@@ -17,7 +17,7 @@ export default ApiRoute(
         return;
     }
 
-    const { oldFileId, meetId, name, startDict, endDict, scope, reoccurances, imageB64, tardy, trackAbsent, inclusive } = req.body;
+    const { oldFileId, meetId, name, startDict, endDict, scope, reoccurances, imageB64, tardy, trackAbsent, inclusive, multipleSubmissions } = req.body;
 
     const sameName = await db.meet.findFirst({
         where: { name, id: { not: meetId } }
@@ -28,7 +28,7 @@ export default ApiRoute(
     }
 
     const updatingEntry = {
-        name, startDict, endDict, scope, trackAbsent, inclusive,
+        name, startDict, endDict, scope, trackAbsent, inclusive, multipleSubmissions,
         reoccurances: {
             create: reoccurances.map(i => {
                 if (i) {

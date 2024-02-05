@@ -29,7 +29,7 @@ export default function MeetSettings({ setSettings, meet }) {
         const data = {
             oldFileId: meet.fileId,
             meetId: meet.id,
-            name, tardy,
+            name, tardy, multipleSubmissions,
             startDict: JSON.stringify(startTime),
             endDict: JSON.stringify(endTime),
             scope, trackAbsent, inclusive,
