@@ -17,9 +17,24 @@ export default ApiRoute(
 
         const { meetId,  name, startTime, endTime, } = req.body;
 
-        const meet = await db.meet.findFirst({
+        const meet = await db.meet.findUnique({
             where: {id:Number(meetId)},
         });
+
+        const inTimeEventExists = await db.event.findFirst({
+            where: {
+                meet: { id: meet.id },
+                OR: [
+                    { AND: [ { startTime: { gte: startTime } }, { startTime: { lte: endTime } } ] },
+                    { AND: [ { endTime: { gte: startTime } }, { endTime: { lte: endTime } } ] }
+                ]
+            }
+        });
+
+        if (inTimeEventExists) {
+            res.status(409).send({ error: 'An event already exists during this time in the meet'});
+            return;  
+        }
 
         const attendees = meet.inclusive ? 
             await db.attendee.findMany({ where: { organizer: { id: user.id } } }) : 

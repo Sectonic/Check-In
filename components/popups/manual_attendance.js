@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-export default function ManualAttendance({ setManual, success_audio, meet }) {
+export default function ManualAttendance({ setManual, success_audio, startEventPicking }) {
     const messageData = useRef(null);
     const messageType = useRef(null);
     const idInput = useRef(null);
@@ -14,18 +14,28 @@ export default function ManualAttendance({ setManual, success_audio, meet }) {
       
             const data = {
               attendeeId: attendeeId,
-              meetId: Number(meet)
             }
+
             const options = {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify(data)
             }
+
             const response = await fetch('/api/post/attendance', options);
             const responseData = await response.json();
-            if (response.ok && responseData.message !== "Already submitted") {
+
+            if (responseData.message == "Pick between these events") {
+                idInput.current.value = "";
+                startEventPicking(attendeeId, responseData, true);
+                setManual(false);
+                return;
+            }
+
+            if (response.status == 200 && responseData.message !== "Already submitted") {
               success_audio.play();
             }
+
             messageType.current.className = `alert my-4 ${response.ok ? 'alert-success' : 'alert-error'}`;
             messageData.current.innerHTML = responseData.message + " @" + responseData.id;
             idInput.current.value = "";

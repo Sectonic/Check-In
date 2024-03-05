@@ -35,6 +35,7 @@ export default function EditEvent({ event, setEventEdit, currentMeet }) {
         } else {
             router.push(`/dashboard/${router.query.meet_slug}/attendance?` + new URLSearchParams({ search: '', eventId: '' }));
         }
+        setEventEdit(false);
     }
 
     return (

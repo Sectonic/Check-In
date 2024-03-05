@@ -1,15 +1,16 @@
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { QrReader } from "react-qr-reader";
 import audio from '@/public/success_sound.mp3';
 import Image from 'next/image';
 import ManualAttendance from '@/components/popups/manual_attendance';
+import AttendanceEventPicker from '@/components/popups/attendance_event_picker';
 
-export const getServerSideProps = async ({ params }) => {
-  return { props: { meet: params.meet_slug }};
-}
-
-export default function QR({ meet }) {
-  const success_audio = new Audio(audio);
+export default function QR() {
+  const [success_audio, setAudio] = useState();
+  const [eventPicking, setEventPicking] = useState(null);
+  const [previousManual, setPreviousManual] = useState(false);
+  const [inTimeEvents, setInTimeEvents] = useState([]);
+  const [reoccuringMeets, setReoccuringMeets] = useState([]);
   const [fullscreen, setFullScreen] = useState(false);
   const [manual, setManual] = useState(false);
   const messageData = useRef(null);
@@ -17,6 +18,10 @@ export default function QR({ meet }) {
 
   const changeEventColor = (color) => `z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[150px] w-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] qr_outline-${color} ring-[10000px] ring-black/70 rounded-lg`;
   const changeEventTitleColor = (color) => `absolute -top-9 text-${color} text-center text-xl font-semibold w-full`;
+
+  useEffect(() => {
+    setAudio(new Audio(audio));
+  }, [])
 
   const changeFullScreen = (value) => {
 
@@ -30,13 +35,31 @@ export default function QR({ meet }) {
 
   }
 
-  const getResult = async (qrId) => {
+  const cancelEventPicking = () => {
+    messageData.current.innerHTML = "No Input";
+    setEventPicking(null);
+    setInTimeEvents([]);
+    setReoccuringMeets([]);
+    setPreviousManual(false);
+  }
+
+  const startEventPicking = (qrId, responseData, manual = false) => {
+    messageData.current.innerHTML = responseData.message + " @" + responseData.id;
+    messageData.current.className = changeEventTitleColor('white');
+    messageOverlay.current.className = changeEventColor('white');
+    setEventPicking(qrId);
+    setInTimeEvents(responseData.events);
+    setReoccuringMeets(responseData.reoccuringMeets);
+    setPreviousManual(manual);
+  }
+
+  const getResult = async (qrId, meetId = null) => {
     if (!messageData.current.innerHTML.includes(qrId)) {
       messageData.current.innerHTML = 'Scanning...';
 
       const data = {
         attendeeId: qrId,
-        meetId: Number(meet)
+        meetId
       }
       const options = {
         method: 'POST',
@@ -45,7 +68,18 @@ export default function QR({ meet }) {
       }
       const response = await fetch('/api/post/attendance', options);
       const responseData = await response.json();
-      if (response.ok && responseData.message !== "Already submitted") {
+
+      if (responseData.message == "Pick between these events") {
+        startEventPicking(qrId, responseData);
+        return;
+      }
+
+      if (meetId) {
+        messageData.current.innerHTML = "No Input";
+        return { status: response.status, message: responseData.message };
+      }
+
+      if (response.status == 200 && responseData.message !== "Already submitted") {
         success_audio.play();
       }
 
@@ -66,7 +100,24 @@ export default function QR({ meet }) {
 
   return (
     <div className={fullscreen ? 'absolute w-full h-full top-0 left-0 bg-black z-50' : ''}>
-      { manual && <ManualAttendance setManual={setManual} success_audio={success_audio} meet={meet} /> }
+      { eventPicking != null && 
+        <AttendanceEventPicker
+          cancelEventPicking={cancelEventPicking}
+          inTimeEvents={inTimeEvents}
+          reoccuringMeets={reoccuringMeets}
+          getResult={getResult}
+          eventPickingId={eventPicking}
+          previousManual={previousManual}
+          setManual={setManual}
+        /> 
+      }
+      { manual && 
+        <ManualAttendance 
+          setManual={setManual} 
+          success_audio={success_audio} 
+          startEventPicking={startEventPicking}
+        /> 
+      }
       <QrReader
         onResult={(result) => {
           if (!!result) {

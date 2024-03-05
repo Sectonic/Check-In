@@ -5,10 +5,14 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import EditAttendee from "@/components/popups/edit_attendee";
 import CsvImportPopup from "@/components/popups/csvImport";
+import CreateAttendee from "@/components/popups/create_attendee";
 
 export const getServerSideProps = SsrRoute(
     async function getServerSideProps({ req }) {
         const user = req.session.user;
+        const userAttendees = await db.attendee.count({
+            where: { organizer: { id: user.id } }
+        })
         const meets = await db.meet.findMany({
             where: {
                 organizer: {
@@ -44,10 +48,10 @@ export const getServerSideProps = SsrRoute(
         });
         const totalAttendees = () => {
             var total = 0;
-            meets.forEach(meet => total += (meet._count.attendees * meet._count.events));
+            meets.forEach(meet => total += ((meet.inclusive ?  userAttendees : meet._count.attendees) * meet._count.events));
             return total;
         }
-        const participation = Math.round((attendanceCount / totalAttendees()) * 100);
+        const participation = totalAttendees() > 0 ? Math.round((attendanceCount / totalAttendees()) * 100) : 0;
         return {
             props: { meets, oldAttendees: attendees, userId: user.id, eventCount, attendanceCount, participation }
         }
@@ -55,15 +59,13 @@ export const getServerSideProps = SsrRoute(
 )
 
 export default function Dashboard({ meets, oldAttendees, userId, eventCount, attendanceCount, participation }) {
-    const [error, setError] = useState('');
     const [edit, setEdit] = useState(false);
+    const [attendeeCreate, setAttendeeCreate] = useState(false);
     const [csvImport, setCsvImport] = useState(false);
     const [attendees, setAttendees] = useState(oldAttendees);
     const [all, setAll] = useState(false);
     const [attendee, setAttendee] = useState({});
     const [search, setSearch] = useState('');
-    const nameInput = useRef(null);
-    const idInput = useRef(null);
     const router = useRouter();
 
     const endEdit = () => {
@@ -77,38 +79,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         const firstLetter = name_split[0].substring(0,1);
         const secondLetter = name_split[1] ? name_split.at(-1).substring(0,1) : "";
         return (firstLetter + secondLetter).toUpperCase();
-    }
-
-    const createAttendee = async (e) => {
-        e.preventDefault();
-        
-        const data = {
-            name: e.target.name.value,
-            id: e.target.id.value
-        }
-
-        const options = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        }
-
-        const response = await fetch('/api/post/attendee', options);
-        if (response.ok) {
-            router.reload();
-        } else {
-            const data = await response.json();
-            setError(data.error);
-        }
-
-        nameInput.current.value = '';
-        idInput.current.value = '';
-
-    }
-
-    const deleteAttendee = async (attendeeId) => {
-        await fetch(`/api/delete/attendee?id=${attendeeId}`);
-        router.reload();
     }
 
     const searchHandler = async (e = null) => {
@@ -135,25 +105,17 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         <>
             { edit && <EditAttendee endEdit={endEdit} attendee={attendee} setEdit={setEdit} setAttendee={setAttendee} />}
             { csvImport && <CsvImportPopup setCsvImport={setCsvImport} oldAttendees={attendees} />}
-            <div className="!bg-primary text-white p-6 rounded-xl">
-                <div className="flex justify-end flex-col items-end">
-                    <div className="text-3xl font-bold">
-                        Aren't in an Organization?
-                    </div>
-                    <div className="text-lg font-thin">
-                        Join or create one now. Collaborate with others for perfect structure.
-                    </div>
-                    <div className="mt-2 glass !bg-inherit btn btn-lg text-white">
-                        Join Now
-                    </div>
+            { attendeeCreate && <CreateAttendee setCreate={setAttendeeCreate} />}
+            <div className="flex justify-start gap-4">
+                <Link className="btn btn-primary btn-sm text-primary-content gap-2" href="/dashboard/qr">
+                    <img src="/img/qr-scan.png" className="w-5 h-5" />
+                    Global Scanner
+                </Link>
+                <div className="btn btn-primary btn-sm text-primary-content gap-2">
+                    <img src="/img/keyboard-down-blue.png" className="w-5 h-5" />
+                    Global Manual
                 </div>
             </div>
-            { error != "" && (
-                <div className="alert alert-error mt-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{error}</span>
-                </div>
-            )}
             <div className="mt-6 gap-5 dashboard-break:grid dashboard-break:grid-cols-3">
                 <div className="dashboard-break:col-span-2 flex flex-col gap-1">
                     <div className="flex stats shadow w-full">
@@ -231,28 +193,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                     </div>
                 </div>
                 <div>
-                    <div className="p-4 mt-5 dashboard-break:mt-3 glass !bg-base-300 rounded-xl">
-                        <form className="bg-base-100 rounded-xl w-full p-3" onSubmit={createAttendee}>
-                            <div className="font-bold text-lg">
-                                Create New Attendee
-                            </div>
-                            <div className="flex gap-1 xl:gap-4 flex-col xl:flex-row">
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">Name</span>
-                                    </label>
-                                    <input ref={nameInput} required name="name" type="text" placeholder="Type here" className="input input-bordered w-full" />
-                                </div>
-                                <div className="form-control w-full">
-                                    <label className="label">
-                                        <span className="label-text">Custom ID (optional)</span>
-                                    </label>
-                                    <input ref={idInput} name="id" type="text" placeholder="Type here" className="input input-bordered w-full" />
-                                </div>
-                            </div>
-                            <button type="submit" className="mt-3 btn btn-success btn-outline btn-block btn-sm">Create</button>
-                        </form>
-                    </div>
                     <div>
                         <div className="p-2 pb-0 text-3xl font-semibold">
                                 All Attendees
@@ -262,7 +202,13 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                                 <Link className="block link link-hover" href={`/${userId}/`}>Attendee Only Page</Link>
                                 <Link className="block link link-hover" href={`/${userId}/qr`}>QR Page</Link>
                             </div>
-                            <div>
+                            <div className="flex flex-col gap-2">
+                                <div className="btn btn-primary btn-sm text-primary-content gap-1" onClick={() => setAttendeeCreate(true)}>
+                                    <svg className="w-4 h-4 text-primary-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8V5.828a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 1 7.828 1h8.239A.969.969 0 0 1 17 2v16a.969.969 0 0 1-.933 1H3.933A.97.97 0 0 1 3 18v-2M8 1v4a1 1 0 0 1-1 1H3m-2 6h10M9.061 9.232 11.828 12l-2.767 2.768"/>
+                                    </svg>
+                                    Create New
+                                </div>
                                 <div className="btn btn-primary btn-sm text-primary-content gap-1" onClick={() => setCsvImport(true)}>
                                     <svg className="w-4 h-4 text-primary-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8V5.828a2 2 0 0 1 .586-1.414l2.828-2.828A2 2 0 0 1 7.828 1h8.239A.969.969 0 0 1 17 2v16a.969.969 0 0 1-.933 1H3.933A.97.97 0 0 1 3 18v-2M8 1v4a1 1 0 0 1-1 1H3m-2 6h10M9.061 9.232 11.828 12l-2.767 2.768"/>
@@ -280,7 +226,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                             </form>
                         </div>
                         <ul role="list">
-                            <div className="max-h-[350px] sm:max-h-[600px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
+                            <div className="max-h-[350px] sm:max-h-[640px] overflow-y-auto flex flex-col gap-4 justify-start content-start p-4 glass !bg-primary rounded-xl">
                                 { attendees.length > 0 ? (
                                     <>
                                     {attendees.map((attendee, i) => (
@@ -306,7 +252,6 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                                                                 setEdit(true);
                                                                 setAttendee(attendee);
                                                             }}>Edit</div></li>
-                                                        <li><div className="btn btn-error btn-sm flex items-center" onClick={() => deleteAttendee(attendee.id)}>Delete</div></li>
                                                     </ul>
                                                 </div>
                                         </div>

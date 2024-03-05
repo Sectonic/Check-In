@@ -44,7 +44,7 @@ export default function App({ Component, pageProps}) {
     if (!router.isReady) return;
     if (!router.query.meet_slug && router.pathname.includes('dashboard')) { 
       var dashboardPage = router.pathname.split('/').at(-1);
-      if (dashboardPage !== 'dashboard') {
+      if (dashboardPage !== 'dashboard' && dashboardPage !== 'qr') {
         router.back(); 
         return;
       }
@@ -70,7 +70,7 @@ export default function App({ Component, pageProps}) {
       <DashboardLayout page={dashboardPage} meets={meets} fetchMeets={fetchMeets} currentMeet={currentMeet}>
         <TopNav user={user} Logout={Logout} fetchUser={fetchUser} />
         <div className='p-6 mx-auto max-w-[1700px]'>
-            {currentMeet || notInMeet ? (
+            {currentMeet || notInMeet || dashboardPage == 'qr' ? (
               <Component {...pageProps} currentMeet={currentMeet} />
             ) : (
               <div className='flex justify-center items-center h-[calc(100vh-150px)]'>

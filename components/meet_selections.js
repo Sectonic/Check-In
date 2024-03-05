@@ -74,7 +74,7 @@ export const TimeDropdown = ({ time, setTime }) => {
 
 
     return (
-        <div tabIndex={0} className="mt-1 dropdown-content p-2 shadow bg-base-100 rounded-box w-52">
+        <div tabIndex={0} className="z-10 mt-1 dropdown-content p-2 shadow bg-base-100 rounded-box w-52">
             <div className="grid grid-cols-3 h-48 text-center">
                 <TimeDropdownSlot list={hours} selected={time.hour} type="hour" timeHandler={timeHandler} />
                 <TimeDropdownSlot list={minutes} selected={time.minute} type="minute" timeHandler={timeHandler} />
@@ -86,7 +86,7 @@ export const TimeDropdown = ({ time, setTime }) => {
 
 export const TimePicker = ({ label, time, setTime, value, reoccuring, position}) => {
     return (
-        <div className={`z-10 dropdown dropdown-bottom ${position && 'dropdown-' + position}`}>
+        <div className={`dropdown dropdown-bottom ${position && 'dropdown-' + position}`}>
             <label className="label">
                 <span className="label-text">{label}</span>
             </label>

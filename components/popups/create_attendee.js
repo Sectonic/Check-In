@@ -1,34 +1,40 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee}) {
-    const [name, setName] = useState(attendee.name);
-    const [specificId, setSpecificId] = useState(attendee.specificId);
+export default function CreateAttendee({ setCreate }) {
+    const [name, setName] = useState('');
+    const [specificId, setSpecificId] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
 
-    const editHandler = async (e) => {
+    const createHandler = async (e) => {
         e.preventDefault();
+        
+        const data = { name, id: specificId };
 
-        const request = await fetch(`/api/update/attendee?id=${attendee.id}&name=${name}&specificId=${specificId}`);
-        if (request.ok) {
-            endEdit();
+        const options = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }
+
+        const response = await fetch('/api/post/attendee', options);
+        if (response.ok) {
+            setCreate(false);
+            router.reload();
         } else {
-            const data = await request.json();
+            const data = await response.json();
             setError(data.error);
+            setSpecificId('');
+            setName('');
         }
 
     }
 
-    const deleteAttendee = async () => {
-        await fetch(`/api/delete/attendee?id=${attendee.id}`);
-        router.reload();
-    }
-
     return (
         <div className="modal modal-open modal-bottom sm:modal-middle">
-            <form className="modal-box" onSubmit={editHandler}>
-                <h3 className="font-bold text-xl">Edit Attendee: {name}</h3>
+            <form className="modal-box" onSubmit={createHandler}>
+                <h3 className="font-bold text-xl">Create Attendee</h3>
                 <div className="form-control w-full">
                     <label className="label">
                         <span className="label-text">Name</span>
@@ -37,9 +43,9 @@ export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee})
                 </div>
                 <div className="form-control w-full">
                     <label className="label">
-                        <span className="label-text">ID</span>
+                        <span className="label-text">Custom ID (optional)</span>
                     </label>
-                    <input required maxLength={16} type="text" placeholder="Type an ID" className="input input-bordered w-full" value={specificId} onChange={(e) => setSpecificId(e.target.value)} />
+                    <input maxLength={16} type="text" placeholder="Type a custom ID (optional)" className="input input-bordered w-full" value={specificId} onChange={(e) => setSpecificId(e.target.value)} />
                 </div>
                 { error.length > 0 && (
                     <div className="alert alert-error mt-5">
@@ -48,11 +54,9 @@ export default function EditAttendee({ endEdit, attendee, setEdit, setAttendee})
                     </div>
                 )}
                 <div className="modal-action">
-                `<button className="btn btn-error" type="button" onClick={deleteAttendee}>Delete</button>
-                    <button className="btn btn-success" type="submit">Edit</button>
+                    <button className="btn btn-success" type="submit">Create</button>
                     <label className="btn btn-ghost" onClick={() => {
-                        setEdit(false);
-                        setAttendee({});
+                        setCreate(false);
                     }}>Dismiss</label>
                 </div>
             </form>
