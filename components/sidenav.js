@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useState } from 'react';
 
 export default function SideNav({ page, router, setCreate, meets, setSettings, short, setShort }) {
     const currentMeet = meets ? meets.find(meet => meet.id == Number(router.query.meet_slug)) : null;
@@ -18,8 +17,12 @@ export default function SideNav({ page, router, setCreate, meets, setSettings, s
     
     return (
         <div className="sm:fixed top-0 left-0 h-full sm:flex relative">
-            <div className={`max-sm:hidden absolute top-3 cursor-pointer ${short ? '-right-6' : '-right-[7px]'}`} onClick={() => setShort(prev => !prev)}>
-                <img src={`/img/angle-double-${short ? 'right' : 'left'}.svg`} className='w-4 h-4' />
+            <div className={`bg-primary rounded-full p-1 max-sm:hidden absolute top-3 cursor-pointer ${short ? 'left-2' : '-right-[15px]'}`} onClick={() => setShort(prev => !prev)}>
+                { !short ? (
+                    <svg className='w-6 h-6 fill-white' viewBox="0 0 24 24"><path d="M10.48,19a1,1,0,0,1-.7-.29L5.19,14.12a3,3,0,0,1,0-4.24L9.78,5.29a1,1,0,0,1,1.41,0,1,1,0,0,1,0,1.42L6.6,11.29a1,1,0,0,0,0,1.42l4.59,4.58a1,1,0,0,1,0,1.42A1,1,0,0,1,10.48,19Z"/><path d="M17.48,19a1,1,0,0,1-.7-.29l-6-6a1,1,0,0,1,0-1.42l6-6a1,1,0,0,1,1.41,0,1,1,0,0,1,0,1.42L12.9,12l5.29,5.29a1,1,0,0,1,0,1.42A1,1,0,0,1,17.48,19Z"/></svg>
+                ) : (
+                    <svg className='w-6 h-6 fill-white' viewBox="0 0 24 24" ><path d="M13.1,19a1,1,0,0,1-.7-1.71L17,12.71a1,1,0,0,0,0-1.42L12.4,6.71a1,1,0,0,1,0-1.42,1,1,0,0,1,1.41,0L18.4,9.88a3,3,0,0,1,0,4.24l-4.59,4.59A1,1,0,0,1,13.1,19Z"/><path d="M6.1,19a1,1,0,0,1-.7-1.71L10.69,12,5.4,6.71a1,1,0,0,1,0-1.42,1,1,0,0,1,1.41,0l6,6a1,1,0,0,1,0,1.42l-6,6A1,1,0,0,1,6.1,19Z"/></svg>
+                )}
             </div>
             <Link href="/dashboard/" className={`${page === "dashboard" ? "max-sm:hidden" : ""} sm:hidden mx-6 my-1 btn btn-ghost flex justify-start items-center gap-2`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
@@ -115,18 +118,6 @@ export default function SideNav({ page, router, setCreate, meets, setSettings, s
                                     <Link className={setActive('attendance')} href={setLink('attendance')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                                         Attendance Sheet
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link className={setActive('qr')} href={setLink('qr')}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                        QR Scanner
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link className={setActive('code')} href={setLink('code')}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        ID Input
                                     </Link>
                                 </li>
                                 <li>

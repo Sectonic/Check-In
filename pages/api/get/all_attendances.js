@@ -3,97 +3,79 @@ import db from "@/lib/prisma";
 export default async function handler(req, res) {
     const { meetIds, search, startTime, endTime } = req.query;
 
-    const meetAttends = await db.meet.findMany({
-        where: { id: { in: meetIds.split(',').map(id => Number(id)) } },
-        select: {
-            id: true,
-            name: true,
-            events: {
-                where: {
-                    startTime: { gte: Number(startTime) },
-                    endTime: { lt: Number(endTime) }
-                },
-                include: {
-                    attendances: true
-                }
+    const attendances = await db.attendance.findMany({
+        where: {
+          event: {
+            meet: {
+              id: { in: meetIds.split(',').map(id => Number(id)) }
             },
-            attendees: { 
-                where: { OR: [{ name: { contains: search } }, { specificId: { contains: search } }] },
-                select: { id: true, specificId: true, name: true } 
+            startTime: { gte: Number(startTime) },
+            endTime: { lt: Number(endTime) }
+          },
+          attendee: {
+            OR: [{ name: { contains: search } }, { specificId: { contains: search } }]
+          }
+        },
+        include: {
+            event: {
+              include: {
+                meet: true
+              }
             }
         }
     });
+
+    const allEvents = await db.event.findMany({
+        where: {
+            meet: {
+                id: { in: meetIds.split(',').map(id => Number(id)) }
+            },
+            startTime: { gte: Number(startTime) },
+            endTime: { lt: Number(endTime) }
+        }
+    })
   
-    const attendees = [];
-    const allEvents = [];
-    meetAttends.forEach(meet => {
+    const attendees = {};
+    attendances.forEach(attendance => {
+        const { id, name, specificId, hours, submitted, attended, event } = attendance;
 
-        meet.attendees.forEach(attendee => {
-            const index = attendees.findIndex(obj => obj.id === attendee.id);
-            if (index === -1) {
-                attendees.push({
-                    ...attendee, 
-                    inMeets: [meet.id],
-                    totalEvents: meet.events.length, 
-                    totalHours: 0, 
-                    eventsAttended: 0, 
-                    attendances: 0, 
-                    totalTimeSubmitted: 0, 
-                    attendances: [], 
-                    missed: []
-                });
-            } else {
-                const indexedAttendee = {...attendees[index]}
-                attendees[index] = {
-                    ...indexedAttendee, inMeets: [...indexedAttendee.inMeets, meet.id]
-                }
-            }
-        });
-        
-    });
+        if (!attendees[specificId]) {
+            attendees[specificId] = {
+                id, name,
+                totalHours: 0,
+                totalSubmitted: 0,
+                totalEvents: 0,
+                eventsAttended: [],
+                missed: []
+            };
+        }
 
-    meetAttends.forEach(meet => {
-        meet.events.forEach(event => {
+        if (attended) {
+            attendees[specificId].totalHours += hours;
+            attendees[specificId].eventsAttended.push(event);
+        } else {
+            attendees[specificId].missed.push(event);
+        }
 
-            const {attendances, ...eventWithoutAttendances} = event;
-            allEvents.push(eventWithoutAttendances);
+        attendees[specificId].totalSubmitted += submitted
+        attendees[specificId].totalEvents += 1
 
-            event.attendances.forEach(attendance => {
-
-                const index = attendees.findIndex(obj => obj.id === attendance.attendeeId);
-                if (index !== -1 && attendees[index].inMeets.includes(meet.id)) {
-                    const attendee = {...attendees[index]};
-                    
-                    const eventAttendances = attendance.attended ? ({
-                        attendances: [...attendee.attendances, {...attendance, event: eventWithoutAttendances, meetId: meet.id, meetName: meet.name }],
-                        missed: attendee.missed,
-                        eventsAttended: attendee.eventsAttended + 1,
-                        totalHours: attendee.totalHours + attendance.hours,
-                        totalTimeSubmitted: attendee.totalTimeSubmitted + attendance.submitted,
-                    }) : ({
-                        missed: [...attendee.missed, { event: eventWithoutAttendances, meetId: meet.id, meetName: meet.name, }],
-                        attendances: attendee.attendances,
-                        eventsNotAttended: attendee.eventsNotAttended + 1,
-                    });
-                    
-                    attendees[index] = {
-                        ...attendee, ...eventAttendances, 
-                    }
-                }
-            })
-        })
     })
     
-    const transformedAttendees = attendees.map(attendee => {
-        const { id, name, specificId, totalEvents, totalHours, eventsAttended, totalTimeSubmitted, attendances, missed } = attendee;
-          
-          return {
-            id, name, specificId, eventsAttended, attendances, missed,
+    const transformedAttendees = Object.entries(attendees).map(([specificId, attendee]) => {
+        const { id, name, totalEvents, totalHours, eventsAttended, totalSubmitted, missed } = attendee;
+        
+        return {
+            specificId,
+            id,
+            name,
+            eventsAttended,
+            missed,
             totalHours: parseFloat(totalHours).toFixed(2),
-            eventsNotAttended: totalEvents - eventsAttended,
-            attendanceRate: parseFloat(((eventsAttended / totalEvents) * 100).toFixed(2)),
-            avgTimeSubmitted: parseFloat(totalTimeSubmitted / eventsAttended || 0).toFixed(2),
-          };
+            eventsNotAttended: totalEvents - eventsAttended.length,
+            attendanceRate: parseFloat(((eventsAttended.length / totalEvents) * 100).toFixed(2)),
+            avgTimeSubmitted: parseFloat(totalSubmitted / eventsAttended.length || 0).toFixed(2),
+        };
     });
 
     res.status(200).send({ sortedAttendees: transformedAttendees, allEvents });

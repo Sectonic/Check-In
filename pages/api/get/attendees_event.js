@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         }
     } : {};
 
-    const attendees = inclusive ? 
+    const attendees = inclusive == 'true' ? 
         await db.attendee.findMany({
             where: { organizer: { id: Number(organizerId) } },
             ...include

@@ -90,15 +90,15 @@ export default function Organizer({ organizer, currentOrganizer }) {
 
           var recorded = false;
   
-          attendee.attendances.forEach(attendance => {
-            if (event.id === attendance.event.id) {
+          attendee.eventsAttended.forEach(attendedEvent => {
+            if (event.id === attendedEvent.id) {
               attendeeInfo.push('Attended');
               recorded = true;
             }
           });
   
-          attendee.missed.forEach(missingAttendance => {
-            if (event.id === missingAttendance.event.id) {
+          attendee.missed.forEach(missingEvent => {
+            if (event.id === missingEvent.id) {
               attendeeInfo.push('Not Attended');  
               recorded = true;
             }
@@ -175,7 +175,7 @@ export default function Organizer({ organizer, currentOrganizer }) {
                 <ul tabIndex={0} className="flex-col dropdown-content menu p-5 shadow bg-base-100 rounded-box w-[280px] gap-2 z-20">
                   <div className="text-sm font-bold -mb-2">Events Timeframe:</div>
                   <Datepicker 
-                    inputClassName="relative transition-all outline-0 ring-0 duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
+                    inputClassName="relative transition-all outline-0 ring-0 duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 bg-white rounded-lg tracking-wide font-light text-sm placeholder-gray-400 disabled:opacity-40 disabled:cursor-not-allowed"
                     value={value} 
                     onChange={handleValueChange} 
                     showFooter={true} 
@@ -213,38 +213,46 @@ export default function Organizer({ organizer, currentOrganizer }) {
               </div>
             </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table w-full rounded-none">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Attendance %</th>
-                    <th>Avg Submitted (min)</th>
-                    <th>Attended</th>
-                    <th>Not Attended</th>
-                    <th>Hours</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {attendees.map((row, i) => (
-                    <tr key={i}>
-                        <th>
-                            {row.name}
-                            <br/>
-                            <span className="text-[11px] font-normal">{row.specificId}</span>
-                        </th>
-                        <td>{row.attendanceRate}%</td>
-                        <td>{row.avgTimeSubmitted}</td>
-                        <td>{row.eventsAttended}</td>
-                        <td>{row.eventsNotAttended}</td>
-                        <td>{row.totalHours}</td>
-                        <td><button type="button" className="btn btn-square btn-ghost" onClick={() => setView(row)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
+          <>
+            {attendees.length == 0 ? (
+              <div className="text-center pt-10">
+                No Data Avaliable
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="table w-full rounded-none">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Attendance %</th>
+                        <th>Avg Submitted (min)</th>
+                        <th>Attended</th>
+                        <th>Not Attended</th>
+                        <th>Hours</th>
+                        <th></th>
                     </tr>
-                ))}
-            </tbody>
-            </table>
-        </div>
+                </thead>
+                <tbody>
+                    {attendees.map((row, i) => (
+                        <tr key={i}>
+                            <th>
+                                {row.name}
+                                <br/>
+                                <span className="text-[11px] font-normal">{row.specificId}</span>
+                            </th>
+                            <td>{row.attendanceRate}%</td>
+                            <td>{row.avgTimeSubmitted}</td>
+                            <td>{row.eventsAttended.length}</td>
+                            <td>{row.missed.length}</td>
+                            <td>{row.totalHours}</td>
+                            <td><button type="button" className="btn btn-square btn-ghost" onClick={() => setView(row)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg></button></td>
+                        </tr>
+                    ))}
+                </tbody>
+                </table>
+            </div>
+            )}
+          </>
         )}
     </div>
   )

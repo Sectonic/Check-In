@@ -17,7 +17,7 @@ export default function QR() {
   const messageOverlay = useRef(null);
 
   const changeEventColor = (color) => `z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[150px] w-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] qr_outline-${color} ring-[10000px] ring-black/70 rounded-lg`;
-  const changeEventTitleColor = (color) => `absolute -top-9 text-${color} text-center text-xl font-semibold w-full`;
+  const changeEventTitleColor = (color) => `absolute -top-14 text-${color} text-center font-semibold w-full`;
 
   useEffect(() => {
     setAudio(new Audio(audio));
@@ -35,8 +35,8 @@ export default function QR() {
 
   }
 
-  const cancelEventPicking = () => {
-    messageData.current.innerHTML = "No Input";
+  const cancelEventPicking = (submitted = false) => {
+    messageData.current.innerHTML = submitted ? "Scanning..." : "No Input";
     setEventPicking(null);
     setInTimeEvents([]);
     setReoccuringMeets([]);
@@ -44,7 +44,7 @@ export default function QR() {
   }
 
   const startEventPicking = (qrId, responseData, manual = false) => {
-    messageData.current.innerHTML = responseData.message + " @" + responseData.id;
+    messageData.current.innerHTML = responseData.message;
     messageData.current.className = changeEventTitleColor('white');
     messageOverlay.current.className = changeEventColor('white');
     setEventPicking(qrId);
@@ -53,7 +53,7 @@ export default function QR() {
     setPreviousManual(manual);
   }
 
-  const getResult = async (qrId, meetId = null) => {
+  const getResult = async (qrId, meetId = null, fromEventSelect = false) => {
     if (!messageData.current.innerHTML.includes(qrId)) {
       messageData.current.innerHTML = 'Scanning...';
 
@@ -74,7 +74,7 @@ export default function QR() {
         return;
       }
 
-      if (meetId) {
+      if (meetId && !fromEventSelect) {
         messageData.current.innerHTML = "No Input";
         return { status: response.status, message: responseData.message };
       }
@@ -84,7 +84,7 @@ export default function QR() {
       }
 
       messageData.current.className = changeEventTitleColor(response.ok ? 'success' : 'error');
-      messageOverlay.current.className = changeEventColor(response.ok ? 'green' : 'red');
+      messageOverlay.current.className = changeEventColor(response.ok ? 'success' : 'error');
 
       messageData.current.innerHTML = responseData.message + " @" + responseData.id;
   
@@ -136,13 +136,16 @@ export default function QR() {
                     height={0}
                     width={0}
                     sizes="100vw"
+                    alt=''
                 />
               </div>
-              <div className='p-3 rounded-xl w-[160px] bg-white text-center transition hover:bg-primary-content cursor-pointer'>
-                <div>Don't have one?</div>
-                <img src='/img/add.png' className='my-1 w-[35px] h-[35px] mx-auto' />
-                <div className='font-semibold'>Create one</div>
+              <div className='p-3 rounded-xl w-[160px] bg-white text-center transition hover:bg-primary-content cursor-pointer' onClick={() => setManual(true)}>
+                <div>Forgot to bring it?</div>
+                <img src='/img/keyboard-down.png' className='my-1 w-[35px] h-[35px] mx-auto' alt='' />
+                <div className='font-semibold'>Manually Input</div>
               </div>
+            </div>
+            <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-3 justify-center items-start z-30 w-[100%] max-[1110px]:rounded-xl  min-[1110px]:w-[109vh] overflow-hidden'>
               <div className='p-3 rounded-xl bg-white'>
                 <div>
                   <Image
@@ -151,19 +154,15 @@ export default function QR() {
                     height={0}
                     width={0}
                     sizes="100vw"
+                    alt=''
                   />
                 </div>
                 <div className='text-lg font-semibold'>Scan your QR Code</div>
               </div>
-              <div className='p-3 rounded-xl w-[160px] bg-white text-center transition hover:bg-primary-content cursor-pointer' onClick={() => setManual(true)}>
-                <div>Forgot to bring it?</div>
-                <img src='/img/keyboard-down.png' className='my-1 w-[35px] h-[35px] mx-auto' />
-                <div className='font-semibold'>Manually Input</div>
-              </div>
             </div>
             <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 w-[100%] max-[1110px]:rounded-xl h-full overflow-hidden rounded-[20px]'>
               <div ref={messageOverlay} className={`z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[150px] w-[150px] sm:w-[200px] sm:h-[200px] md:w-[300px] md:h-[300px] qr_outline-white ring-[10000px] ring-black/70 rounded-lg`}>
-                <div className={`absolute -top-9 text-white text-center text-xl font-semibold w-full`} ref={messageData}>No Input</div>
+                <div className={`absolute -top-14 text-white text-center font-semibold w-full`} ref={messageData}>No Input</div>
               </div>
             </div>
           </>

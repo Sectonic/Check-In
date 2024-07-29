@@ -1,18 +1,7 @@
-import { useState, useRef } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
 
-export default function Register({ fetchUser, fetchMeets }) {
-    const router = useRouter();
-    const [type, setType] = useState(true);
-    const organizer = useRef(null);
-    const org = useRef(null);
+export default function Register() {
     const [error, setError] = useState('');
-
-    const changeType = () => {
-        org.current.className = `flex justify-center px-6 py-3 btn ${type ? '' : 'btn-outline'} btn-primary max-sm:flex-grow`;
-        organizer.current.className = `flex justify-center px-6 py-3 btn ${type ? 'btn-outline' : ''} btn-primary max-sm:flex-grow`;
-        setType(!type)
-    }
 
     const createAccount = async (e) => {
         e.preventDefault();
@@ -34,7 +23,7 @@ export default function Register({ fetchUser, fetchMeets }) {
             body: JSON.stringify(data)
         }
 
-        const url = `/api/post/${type ? 'organizer' : 'organization'}`;
+        const url = '/api/post/register';
         const response = await fetch(url, options);
 
         if (!response.ok) {
@@ -76,27 +65,6 @@ export default function Register({ fetchUser, fetchMeets }) {
                             <p className="mt-4 text-neutral">
                                 Let's get you started on organizing events and gatherings.
                             </p>
-                            <div className="mt-6">
-                                <h1 className="text-neutral">Select type of account</h1>
-                                <div className="mt-3 flex max-sm:flex-wrap max-md:justify-center items-center gap-5">
-                                    <button className="flex justify-center px-6 py-3 btn btn-primary max-sm:flex-grow" onClick={changeType} ref={organizer} type="button">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        <span className="mx-2">
-                                            Organizer
-                                        </span>
-                                    </button>
-                                    <button className="flex justify-center px-6 py-3 btn btn-outline btn-primary max-sm:flex-grow" onClick={changeType} ref={org} type="button">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                        <span className="mx-2">
-                                            Organization
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
                             <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={createAccount}>
                                 <div className="form-control w-full max-w-xs mx-auto">
                                     <label className="label">
@@ -128,9 +96,9 @@ export default function Register({ fetchUser, fetchMeets }) {
                                         className="flex items-center justify-between btn btn-primary">
                                         <span>Sign Up </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
+                                            <path fillRule="evenodd"
                                                 d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                                clip-rule="evenodd" />
+                                                clipRule="evenodd" />
                                         </svg>
                                     </button>
                                 </div>

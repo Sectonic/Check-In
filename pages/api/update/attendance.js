@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
     if (attendance === 'Not Attended') {
 
-        if (trackAbsent) {
+        if (trackAbsent == 'false') {
             await db.attendance.delete({
                 where: {
                     id: Number(attendanceId)

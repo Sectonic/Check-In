@@ -9,14 +9,10 @@ export default ApiRoute(
             return;
         }
         const { name, email, password } = req.body;
-        const organizer_email = !await db.organizer.findFirst({
+        const organizer_email = await db.organizer.findFirst({
             where: {email: email}
         });
-        const organization_email = !await db.organizer.findFirst({
-            where: {email: email}
-        })
-        let unique = organization_email && organizer_email;
-        if (unique) {
+        if (!organizer_email) {
             var userDict = {
                 name, email,
                 password: encrypt(password)

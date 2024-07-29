@@ -1,5 +1,5 @@
 import { SsrRoute } from "@/lib/config";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import db from "@/lib/prisma";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -85,7 +85,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
         if (e) {
             e.preventDefault();
         }
-        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search }));
+        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ search }));
         const attendeeData = await attendeeReq.json();
         setAll(true);
         if (search === '') {
@@ -95,7 +95,7 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
     }
 
     const getAllAttendees = async () => {
-        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ organizerId: userId, search, all: true }));
+        const attendeeReq = await fetch('/api/get/overview_attendees?' + new URLSearchParams({ search, all: true }));
         const attendeeData = await attendeeReq.json();
         setAttendees(attendeeData.attendees);
         setAll(true);
@@ -111,10 +111,10 @@ export default function Dashboard({ meets, oldAttendees, userId, eventCount, att
                     <img src="/img/qr-scan.png" className="w-5 h-5" />
                     Global Scanner
                 </Link>
-                <div className="btn btn-primary btn-sm text-primary-content gap-2">
+                <Link className="btn btn-primary btn-sm text-primary-content gap-2" href="/dashboard/code">
                     <img src="/img/keyboard-down-blue.png" className="w-5 h-5" />
                     Global Manual
-                </div>
+                </Link>
             </div>
             <div className="mt-6 gap-5 dashboard-break:grid dashboard-break:grid-cols-3">
                 <div className="dashboard-break:col-span-2 flex flex-col gap-1">

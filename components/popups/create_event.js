@@ -111,7 +111,7 @@ export default function CreateEvent({ setCreate, currentMeet }) {
                 </div>
                 <div className="text-[14px] px-1 mt-2">Date</div>
                 <Datepicker 
-                    inputClassName="mt-1 relative transition-all border border-2 outline-0 ring-0 duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
+                    inputClassName="relative transition-all outline-0 ring-0 duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 bg-white rounded-lg tracking-wide font-light text-sm placeholder-gray-400 disabled:opacity-40 disabled:cursor-not-allowed"
                     value={value} 
                     onChange={(e) => setValue(e)} 
                     readOnly={true} 

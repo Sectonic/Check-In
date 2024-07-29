@@ -27,6 +27,8 @@ export default ApiRoute(async function (req, res) {
           date: true
         }
       },
+      reoccurance: true,
+      scope: true,
       startDict: true,
       endDict: true
     }
@@ -35,23 +37,40 @@ export default ApiRoute(async function (req, res) {
   const { attendeeId, meetId } = req.body;
 
   const currentUnix = dayjs().unix();
-  const inTimeEvents = await db.event.findMany({
+  const inTimeEventsUnfiltered = await db.event.findMany({
     where: {
       startTime: { lte: currentUnix },
       endTime: { gt: currentUnix },
-      meet: { id: meetId ? ({ meetId }) : ({ in: userMeets.map(meet => meet.id) }) },
+      meet: { id: meetId ? meetId : ({ in: userMeets.map(meet => meet.id) }) },
     },
     include: {
       meet: {
         select: {
           id: true,
-          name: true
+          name: true,
+          reoccurance: true,
+          inclusive: true,
+          scope: true,
+          attendees: {
+            select: {
+              specificId: true
+            }
+          }
         }
-      }
+      },
     }
+  })
+  
+  const inTimeEvents = inTimeEventsUnfiltered.filter(event => {
+    if (event.meet.inclusive) return event;
+    if (event.meet.attendees.map(attendee => attendee.specificId).includes(attendeeId)) return event;
   });
 
-  const reoccuringMeets = userMeets.map(meet => {
+  const reoccuringMeets = meetId ? [] : userMeets.filter(meet => {
+
+    if (!meet.reoccurance) {
+      return;
+    }
 
     if (inTimeEvents.map(event => event.meet.id).includes(meet.id)) {
       return;
@@ -89,8 +108,8 @@ export default ApiRoute(async function (req, res) {
 
     if (currentDuration >= startDuration && currentDuration < endDuration) {
       if (
-        currentMeet.scope === 'Daily' || 
-        (currentMeet.scope === 'Weekly' && currentMeet.reoccurances.map(i => i.date).includes(dayjs().day() + 1))
+        meet.scope === 'Daily' || 
+        (meet.scope === 'Weekly' && meet.reoccurances.map(i => i.date).includes(dayjs().day() + 1))
       ) {
         return meet;
       }
@@ -123,7 +142,7 @@ export default ApiRoute(async function (req, res) {
     });
 
   if (!attendee) {
-    res.status(409).send({ message: 'Invalid Code', id: attendeeId });
+    res.status(409).send({ message: 'Code unavaliable for meet', id: attendeeId });
     return;
   }
 
@@ -134,7 +153,7 @@ export default ApiRoute(async function (req, res) {
     const checkAttendance = await db.attendance.findFirst({
       where: {
         event: { id: inTimeEvent.id },
-        attendee: { specificId: attendeeId }
+        specificId: attendeeId
       }
     });
   

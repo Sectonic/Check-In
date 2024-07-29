@@ -6,18 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model Organization {
-  id Int @id @default(autoincrement())
-  code Int @unique
-  name String
-  email String 
-  password String
-  organizers Organizer[]
+  provider = "postgres"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
 }
 
 model Organizer {
@@ -25,12 +16,9 @@ model Organizer {
   name String
   email String
   password String
-  org Organization? @relation(fields: [orgId], references: [id])
-  orgId Int?
   meets Meet[]
   // tags Tag[]
   attendees Attendee[]
-  @@index([orgId])
 }
 
 // model Tag {
@@ -63,7 +51,6 @@ model Meet {
 
   organizer Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   organizerId Int
-  @@index([organizerId])
 }
 
 model Reoccurance {
@@ -71,7 +58,6 @@ model Reoccurance {
   date Int
   meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
   meetId Int
-  @@index([meetId])
 }
 
 model Event {
@@ -80,11 +66,10 @@ model Event {
   startTime Int
   endTime Int
   multipleSubmissions Boolean @default(false)
-  tag String?
+  // tag String?
   meet Meet @relation(fields: [meetId], references: [id], onDelete: Cascade)
   meetId Int
   attendances Attendance[]
-  @@index([meetId])
 }
 
 model Attendee {
@@ -96,7 +81,6 @@ model Attendee {
   meets Meet[]
   // tag String? 
   attendances Attendance[]
-  @@index([organizerId])
 }
 
 model Attendance {
@@ -110,6 +94,4 @@ model Attendance {
   eventId Int
   submitted Int @default(0)
   hours Float
-  @@index([attendeeId])
-  @@index([eventId])
 }

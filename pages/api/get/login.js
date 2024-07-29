@@ -5,41 +5,27 @@ import { checkSimilar } from '@/lib/crypt';
 export default ApiRoute(
     async function handler(req, res) {
         const { email, password } = req.query;
-        let currentUser;
-        let meets;
-        let organization;
 
-        const organizationExists = await db.organization.findFirst({
+        const organizerExists = await db.organizer.findFirst({
             where: { email },
+            select: {
+                id: true,
+                password: true,
+                meets: { select: { id: true } },
+            },
         });
 
-        if (organizationExists) {
-            currentUser = organizationExists;
-            organization = true;
-        } else {
-            const organizerExists = await db.organizer.findFirst({
-                where: { email },
-                select: {
-                    id: true,
-                    password: true,
-                    meets: { select: { id: true } },
-                },
-            });
-
-            if (organizerExists) {
-                currentUser = organizerExists;
-                meets = currentUser.meets ? currentUser.meets.map((e) => e.id) : null;
-                organization = false;
-            } else {
-                res.status(409).send({ error: "Email does not exist" });
-                return;
-            }
+        if (!organizerExists) {
+            res.status(409).send({ error: "Email does not exist" });
+            return;
         }
+
+        const currentUser = organizerExists;
+        const meets = currentUser.meets ? currentUser.meets.map((e) => e.id) : null;
 
         if (checkSimilar(currentUser.password, password)) {
             req.session.user = {
                 id: currentUser.id,
-                admin: organization,
                 meets,
             };
 

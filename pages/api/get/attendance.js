@@ -155,7 +155,12 @@ export default ApiRoute(
           }
 
         } else {
-          notAttended.push(att)
+          notAttended.push({
+            id: att.attendeeId,
+            name: att.name,
+            specificId: att.specificId,
+            attendances: [att]
+          })
         }
 
       })

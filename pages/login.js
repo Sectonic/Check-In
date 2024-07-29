@@ -1,9 +1,7 @@
 import {useState} from 'react';
-import { useRouter } from "next/router";
 
-export default function Login({ fetchUser, fetchMeets }) {
+export default function Login() {
   const [error, setError] = useState('');
-  const router = useRouter();
   
   const removeBtn = () => {
     setError('');

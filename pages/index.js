@@ -1,6 +1,5 @@
-import TopNav from "@/components/topnav";
 
-export default function Home({ user }) {
+export default function Home() {
 
   return (
     <>
@@ -12,7 +11,7 @@ export default function Home({ user }) {
                     Check-In is a versatile attendance website that provides easy accessibility, immense speed, detailed displays for your needs. It allows you to take attendance in a way you want and is flexibile to your style.
                   </p>
                   <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-                      <a href="/register"><button className="btn btn-outline btn-primary shadow-md">Register Now</button></a>
+                    <a href="/register"><button className="btn btn-outline btn-primary shadow-md">Register Now</button></a>
                   </div>
               </div>
               <div className="lg:mt-0 lg:col-span-5 flex justify-center lg:w-full">
@@ -97,7 +96,7 @@ export default function Home({ user }) {
                       <img src="/img/logo.png" className="h-5 mr-3 sm:h-9" alt="Check-In Logo" />
                       Check-In 
                   </a>
-                  <span className="block text-sm text-center text-gray-500">© 2023 Check-In™. All Rights Reserved..
+                  <span className="block text-sm text-center text-gray-500">© 2024 Check-In™. All Rights Reserved.
                   </span>
               </div>
           </div>

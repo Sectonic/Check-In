@@ -2,14 +2,14 @@ import { useRef, useState } from "react";
 
 export default function EditAttendance({ attendance, setEdit, endEdit, meet }) {
     const attendee = attendance;
-    const [attended, setAttended] = useState(attendance.attended ? 'Attended' : 'Not Attended')
+    const [attended, setAttended] = useState(attendance.attendances[0].attended ? 'Attended' : 'Not Attended')
     const late = useRef(null);
 
     const editHandler = async (e) => {
         e.preventDefault();
 
         const data = {
-            attendanceId: attendance.id,
+            attendanceId: attendance.attendances[0].id,
             attendance: e.target.attendance.value,
             late: Number(e.target.late.value),
             trackAbsent: meet.trackAbsent
@@ -67,7 +67,7 @@ export default function EditAttendance({ attendance, setEdit, endEdit, meet }) {
                     <label className="label">
                         <span className="label-text">Submitted In (MIN)</span>
                     </label>
-                    <input name="late" ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" defaultValue={attendance.attended ? attendance.submitted : null} />
+                    <input name="late" ref={late} onChange={lateHandler} type="number" placeholder="Type time" className="input input-bordered w-full" defaultValue={attendance.attendances[0].attended ? attendance.attendances[0].submitted : null} />
                 </div>
                 <div className="bg-base-200 p-2 rounded-lg text-xs mt-2">
                     *To mark as Tardy, put the submitted in time higher than the meet tardy time (if even enabled)

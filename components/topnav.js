@@ -8,7 +8,7 @@ export default function TopNav({ user, Logout, fetchUser }) {
   return (
     <>
       { profile && <EditOrganizer setProfile={setProfile} organizer={user} fetchUser={fetchUser} />}
-      <div className="navbar bg-base-100 max-w-[1700px] mx-auto">
+      <div className="navbar bg-base-100 max-w-[1700px] md:pl-8 mx-auto">
         <div className="navbar-start">
           <Link className="btn btn-ghost normal-case text-xl gap-2" href="/">
             <img src="/img/logo.png" className="w-7" />
@@ -29,7 +29,6 @@ export default function TopNav({ user, Logout, fetchUser }) {
                     <li className="ml-4 font-semibold mt-1">Hello, {user.name}</li>
                     <li><div onClick={() => setProfile(true)}>Profile</div></li>
                     <li><Link href="/dashboard/">Dashboard</Link></li>
-                    <li><div>Organizations</div></li>
                     <li><div className="btn btn-outline btn-sm items-center" onClick={Logout}>Logout</div></li>
                   </ul>
                 </div>
@@ -37,7 +36,6 @@ export default function TopNav({ user, Logout, fetchUser }) {
             ) : (
               <>
               <div className="navbar-end hidden lg:flex gap-3 justify-end items-center">
-                <div className="btn btn-ghost">Organizations</div>
                 <Link href="/dashboard/" className="btn btn-ghost">Dashboard</Link>
                 <Link href="/login" className="btn btn-outline px-6">Login</Link>
                 <Link href="/register" className="btn btn-primary px-7">Sign Up</Link>
@@ -49,7 +47,6 @@ export default function TopNav({ user, Logout, fetchUser }) {
                   </label>
                   <ul tabIndex={0} className="menu menu-compact dropdown-content p-2 shadow bg-base-100 rounded-box w-52 gap-2">
                     <li><Link href="/dashboard/">Dashboard</Link></li>
-                    <li><div>Organizations</div></li>
                     <li><Link className="btn btn-outline btn-sm" href="/login">Login</Link></li>
                     <li><Link className="btn btn-primary btn-sm text-primary-content" href="/register">Signup</Link></li>
                   </ul>
