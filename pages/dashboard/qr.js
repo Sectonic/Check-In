@@ -79,12 +79,12 @@ export default function QR() {
         return { status: response.status, message: responseData.message };
       }
 
-      if (response.status == 200 && responseData.message !== "Already submitted") {
-        success_audio.play();
-      }
+      // if (response.status == 200 && responseData.message !== "Already submitted") {
+      //   success_audio.play();
+      // }
 
       messageData.current.className = changeEventTitleColor(response.ok ? 'success' : 'error');
-      messageOverlay.current.className = changeEventColor(response.ok ? 'success' : 'error');
+      messageOverlay.current.className = changeEventColor(response.ok ? 'green' : 'red');
 
       messageData.current.innerHTML = responseData.message + " @" + responseData.id;
   

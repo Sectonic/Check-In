@@ -53,9 +53,9 @@ export default function Page() {
               return;
             }
 
-            if (response.ok && responseData.message !== "Already submitted") {
-              success_audio.play();
-            }
+            // if (response.ok && responseData.message !== "Already submitted") {
+            //   success_audio.play();
+            // }
             messageType.current.className = `alert mb-3 max-w-[500px] mt-2 ${response.ok ? 'alert-success' : 'alert-error'}`;
             messageData.current.innerHTML = responseData.message + " @" + responseData.id;
             idInput.current.value = "";

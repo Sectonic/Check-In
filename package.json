@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.2.0",
+    "@mdx-js/loader": "^3.0.1",
+    "@mdx-js/react": "^3.0.1",
+    "@next/mdx": "^14.2.5",
     "@prisma/client": "^5.1.1",
-    "@tailwindcss/typography": "^0.5.9",
+    "@types/mdx": "^2.0.13",
     "animate.css": "^4.1.1",
     "autoprefixer": "10.4.14",
     "crypto-js": "^4.1.1",

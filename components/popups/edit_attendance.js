@@ -27,7 +27,7 @@ export default function EditAttendance({ attendance, setEdit, endEdit, meet }) {
     }
 
     const deleteRecord = async () => {
-        await fetch('/api/delete/attendance?' + new URLSearchParams({ attendanceId: attendance.id }));
+        await fetch('/api/delete/attendance?' + new URLSearchParams({ attendanceId: attendance.attendances[0].id }));
         endEdit();
     }
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 export default function Home() {
 
@@ -10,8 +11,9 @@ export default function Home() {
                   <p className="max-w-2xl mb-6 font-light lg:mb-8 md:text-lg lg:text-xl">
                     Check-In is a versatile attendance website that provides easy accessibility, immense speed, detailed displays for your needs. It allows you to take attendance in a way you want and is flexibile to your style.
                   </p>
-                  <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-                    <a href="/register"><button className="btn btn-outline btn-primary shadow-md">Register Now</button></a>
+                  <div className="flex justify-start items-start gap-3">
+                    <Link href="/preview"><button className="btn btn-primary shadow-md">Preview</button></Link>
+                    <Link href="/register"><button className="btn btn-outline btn-primary shadow-md">Register Now</button></Link>
                   </div>
               </div>
               <div className="lg:mt-0 lg:col-span-5 flex justify-center lg:w-full">

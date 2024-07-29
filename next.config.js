@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const withImages = require('next-images');
+const withMDX = require('@next/mdx')();
 
 const nextConfig = withImages({
   reactStrictMode: false,
@@ -18,6 +19,7 @@ const nextConfig = withImages({
 
     return config;
   },
+  pageExtensions: ['js', 'mdx'],
 });
 
-module.exports = nextConfig
+module.exports = withMDX(nextConfig);
