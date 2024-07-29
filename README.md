@@ -1,38 +1,71 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Check-In Preview
 
-## Getting Started
+*Dashboard Images/Videos are included*
 
-First, run the development server:
+Check-In is an automated attendance management system designed to simplify tracking attendance. With QR codes and unique IDs, Check-In makes attendance tracking quick and easy. This system is perfect for events where efficiency and accuracy are crucial.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## How it works
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<img src='./public/preview/Check-In Diagram.svg' alt='Tree Diagram' height="325px" margin="auto">
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+#### **1. Meets**
+- Organizer accounts create meets as the primary group that events fall under. For example, a classroom can be a meet, and each day of class can be an event. Meets are highly customizable.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+#### **2. Attendees**
+- The individuals who will attend the events. They are holistically tied to the organizer but specifically to individual meets.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+#### **3. Events**
+- The specific occurrences under a meet. Events are where attendance is tracked.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### **4. Attendances**
+- The records of who attended which event. This can be done through QR codes, unique IDs, or manually as an organizer.
 
-## Learn More
+<a id='visuals'></a>
+## Dashboard
 
-To learn more about Next.js, take a look at the following resources:
+<img src='./public/preview/checkin_dashboard.png' alt='Dashboard' width="700px" margin="auto">
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### **On the Dashboard, you can:**
+- Create new attendees or import them from a CSV file.
+- View or edit existing attendees.
+- See data related to events, attendances, and attendance rates.
+- Manage all your created meets.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Meet Creation
 
-## Deploy on Vercel
+<img src='./public/preview/checkin_meet_creation.gif' alt='Meet Creation' width="700px" margin="auto">
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### **Meets offer extensive customization options:**
+- **Name**
+- **Track Absent:** Toggle absent tracking on or off.
+- **Multiple Event Attendances:** Allows an attendee to check in multiple times for the same event.
+- **Include All Attendees:** Specify which attendees are included.
+- **Tardies:** Set a threshold for marking attendees as tardy.
+- **Reoccurring Events:** Automatically generate events based on a set schedule.
+- **Meet Picture:** Add an image to represent the meet.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Inside a Meet
+
+<img src='./public/preview/checkin_meet_overview.gif' alt='Meet Overview' width="700px" margin="auto">
+
+#### **Each meet contains four pages:**
+- **Overview**: View charts and statistics about attendance.
+- **Attendance Sheet**: Search for events and manually edit attendance records.
+- **Attendees**: Manage attendees for the meet.
+- **Settings**: Configure meet-specific settings.
+
+## Attendance Collection
+
+<img src='./public/preview/checkin_scanners.gif' alt='Attendance Collection' width="700px" margin="auto">
+
+#### **Multiple ways to collect:**
+- **Global Scanner:** Scan QR codes to log attendance.
+- **Global Manual:** Enter unique IDs to log attendance.
+
+When scanned or entered, the system automatically identifies the meet and the current event, logging the attendance accordingly. If there are multiple events going on simultaneously, it will prompt you to choose one.
+
+## Attendee List
+
+<img src='./public/preview/checkin_attendee_only.gif' alt='Attendee List' width="700px" margin="auto">
+
+The Attendee List page allows you to select meets and dates to view detailed attendance data. You can see which events attendees have attended or missed, their overall attendance rate, and more.
