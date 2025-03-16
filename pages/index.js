@@ -59,7 +59,10 @@ export default function Home() {
                       </ul>
                       <p className="font-light lg:text-xl">Deliver the most convenient experience with our flexibility</p>
                     </div>
-                  <img className="w-3/4 lg:w-full mb-4 rounded-lg lg:mb-0 flex mx-auto" src="https://themewagon.github.io/landwind/images/feature-1.png" alt="dashboard feature image" />
+                    <div className="max-lg:mt-6 flex w-full justify-center items-center gap-3 min-[1370px]:gap-8">
+                        <img className="w-1/3 lg:w-1/2 min-[1370px]:h-[500px] mb-4 rounded-lg lg:mb-0 flex lg:mx-auto bg-white py-3 shadow-lg" src="/home/create_modal.png" alt="dashboard feature image" />
+                        <img className="w-1/3 lg:w-1/2 min-[1370px]:h-[500px] mb-4 rounded-lg lg:mb-0 flex lg:mx-auto bg-white py-3 shadow-xl" src="/home/attendance.png" alt="dashboard feature image" />
+                    </div>
               </div>
 
               <div className="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
@@ -85,7 +88,7 @@ export default function Home() {
                           </li>
                       </ul>
                     </div>
-                  <img className="w-3/4 lg:w-full mb-4 rounded-lg lg:mb-0 flex mx-auto lg:order-first" src="https://themewagon.github.io/landwind/images/feature-2.png" alt="feature image 2" />
+                  <img className="w-3/4 lg:w-full pt-3 bg-white mb-4 rounded-lg lg:mb-0 flex mx-auto lg:order-first shadow-lg" src="/home/visualization.png" alt="feature image 2" />
               </div>
           </div>
         </section>
@@ -98,8 +101,6 @@ export default function Home() {
                       <img src="/img/logo.png" className="h-5 mr-3 sm:h-9" alt="Check-In Logo" />
                       Check-In 
                   </a>
-                  <span className="block text-sm text-center text-gray-500">© 2024 Check-In™. All Rights Reserved.
-                  </span>
               </div>
           </div>
       </footer>

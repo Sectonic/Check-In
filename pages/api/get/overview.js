@@ -76,12 +76,12 @@ export default async function handler(req, res) {
     for (const event of events) {
       for (const attendance of event.attendances) {
         if (attendance.attended) {
+          const num = attendance.submitted;
+          counts[num] = (counts[num] || 0) + 1;
           piePoints[attendance.submitted > (meet.tardy || attendance.submitted + 1) ? 2 : 0].value++;
         } else {
           piePoints[1].value++;
         }
-        const num = attendance.submitted;
-        counts[num] = (counts[num] || 0) + 1;
       }
     }
   
